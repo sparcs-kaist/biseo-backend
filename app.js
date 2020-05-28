@@ -7,6 +7,8 @@ import connectRedis from 'connect-redis'
 import routes from './routes'
 
 const app = express()
+const socketApp = express()
+
 const RedisStore = connectRedis(session)
 const redisClient = new Redis(3001)
 app.use(cors({
@@ -29,10 +31,12 @@ app.use(session({
 app.set('jwt-secret', process.env.JWT_SECRET)
 
 app.get('/', (req, res) => {
+	console.log("get /")
 	res.sendFile('index.html')
 })
 app.use('/api', routes)
 
 app.set('port', 3000)
 
-export default app;
+
+export {app, socketApp};
