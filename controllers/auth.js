@@ -6,14 +6,14 @@ const authCheck = (req, res) => {
 	const jwtSecret = req.app.get('jwt-secret')
 	const token = req.headers['x-access-token'] || ''
 
-	jwt.verify(token, jwtSecret, (err, decode) => {
+    if (!token)
+        return res.json({ success: false })
+
+	jwt.verify(token.split(' ')[1], jwtSecret, (err, decode) => {
 		if (err) {
-			res.status(403).json({
-				error: err.message
-			});
-			return;
+            return res.json({ success: false });
 		}
-		res.status(200).json(decode)
+        res.json({ success: true })
 	})
 }
 
@@ -35,7 +35,7 @@ const loginCallback = async (req, res) => {
 		})
 		return
 	}
-	
+
 	const user = await client.getUserInfo(code)
 	const token = jwtSign(user, req.app.get('jwt-secret'))
 	res.status(200).json({
