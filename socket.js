@@ -16,14 +16,14 @@ module.exports = io => {
 
         socket.broadcast.emit('enter', user) // 전체 유저에게 누가 들어왔는지 보내줌
 
-        socket.emit('members', accessor)
-        socket.broadcast.emit('members', accessor)
+        socket.emit('members', accessors)
+        socket.broadcast.emit('members', accessors)
 
         socket.on('disconnect', () => {
-            let idx = accessor.indexOf(user)
-            if (idx > -1) accessor.splice(idx, 1) // disconnect된 유저이름의 index 찾아서 접속자 배열에서 지움
+            let idx = accessors.indexOf(user)
+            if (idx > -1) accessors.splice(idx, 1) // disconnect된 유저이름의 index 찾아서 접속자 배열에서 지움
 
-            socket.broadcast.emit('members', accessor) // 접속자가 변경되었으므로 전체 유저에게 변경된 접속자를 보내줌
+            socket.broadcast.emit('members', accessors) // 접속자가 변경되었으므로 전체 유저에게 변경된 접속자를 보내줌
             socket.broadcast.emit('out', user) // 전체 유저에게 누가 나갔는지 보내줌
         })
 
