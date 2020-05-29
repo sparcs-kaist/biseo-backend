@@ -10,14 +10,14 @@ module.exports = io => {
             decoded = jwt.verify(socket.handshake.query['token'], process.env.JWT_SECRET)
         } catch (err) {}
         const user = decoded.sparcs_id || username[Math.floor(Math.random() * username.length)]  // 랜덤 유저 이름 추출 (역시나 임시적)
-        accessors.push(user)
+
+        if (!accessors.includes(user)) {
+            accessors.push(user)
+            socket.broadcast.emit('enter', user) // 전체 유저에게 누가 들어왔는지 보내줌
+            socket.emit('members', accessors)
+        }
 
         io.to(socket.id).emit('name', user) // 접속한 유저에게 랜덤으로 추출된 이름을 보내줌
-
-        socket.broadcast.emit('enter', user) // 전체 유저에게 누가 들어왔는지 보내줌
-
-        socket.emit('members', accessors)
-        socket.broadcast.emit('members', accessors)
 
         socket.on('disconnect', () => {
             let idx = accessors.indexOf(user)
