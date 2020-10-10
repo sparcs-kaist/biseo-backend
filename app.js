@@ -12,7 +12,7 @@ const socketApp = express()
 const RedisStore = connectRedis(session)
 const redisClient = new Redis(3001)
 app.use(cors({
-	origin: 'http://kong.sparcs.org:7300',
+	origin: 'http://aria.sparcs.org:33383',
 	credentials: true
 }))
 app.use(express.json())
