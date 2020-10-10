@@ -39,8 +39,6 @@ const loginCallback = async (req, res) => {
 	const user = await client.getUserInfo(code)
 	const token = jwtSign(user, req.app.get('jwt-secret'))
 	
-	console.log(user)
-
 	res.status(200).json({
 		token: token,
 		status: 200,
