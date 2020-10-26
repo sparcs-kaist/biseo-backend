@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const {app, socketApp} = require('./app')
 const http = require('http')
 const SocketIo = require('socket.io')
