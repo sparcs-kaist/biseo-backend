@@ -3,7 +3,6 @@ import session from 'express-session'
 import Redis from 'ioredis'
 import cors from 'cors'
 import connectRedis from 'connect-redis'
-
 import routes from './routes'
 
 const app = express()
@@ -11,8 +10,9 @@ const socketApp = express()
 
 const RedisStore = connectRedis(session)
 const redisClient = new Redis(3001)
+
 app.use(cors({
-	origin: 'http://aria.sparcs.org:33383',
+	origin: process.env.ALLOWED_HOST,
 	credentials: true
 }))
 app.use(express.json())
