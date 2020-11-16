@@ -18,23 +18,23 @@ app.set('jwt-secret', process.env.JWT_SECRET)
 app.set('port', 3000)
 
 app.use(session({
-	resave: false,
-	saveUninitialized: true,
-	secret: process.env.REDIS_SECRET,
-	store: new RedisStore({
-		client: redisClient
-	}),
-	cookie: { maxAge: 60000 },
+    resave: false,
+    saveUninitialized: true,
+    secret: process.env.REDIS_SECRET,
+    store: new RedisStore({
+        client: redisClient
+    }),
+    cookie: { maxAge: 60000 },
 }))
 app.use(cors({
-	origin: process.env.ALLOWED_HOST,
-	credentials: true
+    origin: process.env.ALLOWED_HOST,
+    credentials: true
 }))
 app.use(express.json())
 app.use('/api', routes)
 
 app.listen(app.get('port'), () => {
-  console.log(`Server is running on port ${app.get('port')}...`)
+    console.log(`Server is running on port ${app.get('port')}...`)
 })
 
 // initialize and run socket server
