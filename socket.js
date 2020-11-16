@@ -1,36 +1,47 @@
 import jwt from 'jsonwebtoken'
 
-const username = ["Jack", "Lukas", "James", "Oliver", "Sophia", "Emma", "Aria", "Amelia"] // SSO 로그인 구현 전 임시 유저 배열
-let accessors = [] // 접속자 배열
+const randomNames = ["Jack", "Lukas", "James", "Oliver", "Sophia", "Emma", "Aria", "Amelia"] // SSO 로그인 구현 전 임시 유저 배열
+const accessors = [] // 접속자 배열
 
-export default io => {
-    io.on('connection', socket => {
-        let decoded = ''
-        try {
-            decoded = jwt.verify(socket.handshake.query['token'], process.env.JWT_SECRET)
-        } catch (err) {}
-        const user = decoded.sparcs_id == undefined ? username[Math.floor(Math.random() * username.length)] : decoded.sparcs_id // 랜덤 유저 이름 추출 (역시나 임시적)
-        if (!accessors.includes(user)) {
-            accessors.push(user)
-        }
-        io.to(socket.id).emit('name', user) // 접속한 유저에게 랜덤으로 추출된 이름을 보내줌
+const getUsername = token => {
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        return decoded.sparcs_id
+    } catch (err) {
+        return randomNames[Math.floor(Math.random() * randomNames.length)]
+    }
+}
 
-        socket.broadcast.emit('enter', user) // 전체 유저에게 누가 들어왔는지 보내줌
+const registerSocketDisconnect = socket => {
+    socket.on('disconnect', () => {
+        const idx = accessors.indexOf(user)
+        if (idx > -1) accessors.splice(idx, 1) // disconnect된 유저이름의 index 찾아서 접속자 배열에서 지움
 
-        socket.emit('members', accessors)
-        socket.broadcast.emit('members', accessors)
+        socket.broadcast.emit('members', accessors) // 접속자가 변경되었으므로 전체 유저에게 변경된 접속자를 보내줌
+        socket.broadcast.emit('out', user) // 전체 유저에게 누가 나갔는지 보내줌
+    })
+}
 
-        socket.on('disconnect', () => {
-            let idx = accessors.indexOf(user)
-            if (idx > -1) accessors.splice(idx, 1) // disconnect된 유저이름의 index 찾아서 접속자 배열에서 지움
+const registerSocketChatMessage = socket => {
+    socket.on('chat message', message => {
+        socket.broadcast.emit('chat message', user, message) // 유저가 chat message 로 메시지를 socket에게 보냄 -> 전체에게 메시지 뿌려줌
+    })
+}
 
-            socket.broadcast.emit('members', accessors) // 접속자가 변경되었으므로 전체 유저에게 변경된 접속자를 보내줌
-            socket.broadcast.emit('out', user) // 전체 유저에게 누가 나갔는지 보내줌
-        })
+const onIoConnection = socket => {
+    const user = getUsername(socket.handshake.query['token'])
 
-        socket.on('chat message', message => {
-            socket.broadcast.emit('chat message', user, message) // 유저가 chat message 로 메시지를 socket에게 보냄 -> 전체에게 메시지 뿌려줌
-        })
-    });
-};
+    if (!accessors.includes(user))
+        accessors.push(user)
 
+    socket.emit('members', accessors)           // send list of members to the user
+    socket.broadcast.emit('members', accessors) // send list of members to other users
+
+    io.to(socket.id).emit('name', user)         // send username to the user
+    socket.broadcast.emit('enter', user)        // broadcast the user's entrance
+
+    registerSocketDisconnect(socket)
+    registerSocketChatMessage(socket)
+}
+
+export default io => io.on('connection', onIoConnection)
