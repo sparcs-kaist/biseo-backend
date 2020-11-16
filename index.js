@@ -1,21 +1,46 @@
-require('dotenv').config()
+import './config'
+import connectRedis from 'connect-redis'
+import cors from 'cors'
+import express from 'express'
+import http from 'http'
+import socket from 'socket.io'
+import Redis from 'ioredis'
+import session from 'express-session'
+import routes from './routes'
+import socketEvents from './socket.js'
 
-const {app, socketApp} = require('./app')
-const http = require('http')
-const SocketIo = require('socket.io')
-const socketEvents = require('./socket.js')
+// initialize and run http server
+const app = express()
+const RedisStore = connectRedis(session)
+const redisClient = new Redis(3001)
 
-const server = http.createServer(app)
+app.set('jwt-secret', process.env.JWT_SECRET)
+app.set('port', 3000)
 
-const socketServer = socketApp.listen(3002, ()=>{
-  console.log(`server is running on 3002`)
+app.use(session({
+    resave: false,
+    saveUninitialized: true,
+    secret: process.env.REDIS_SECRET,
+    store: new RedisStore({
+        client: redisClient
+    }),
+    cookie: { maxAge: 60000 },
+}))
+app.use(cors({
+    origin: process.env.ALLOWED_HOST,
+    credentials: true
+}))
+app.use(express.json())
+app.use('/api', routes)
+
+app.listen(app.get('port'), () => {
+    console.log(`Server is running on port ${app.get('port')}...`)
 })
 
-socketApp.get('/', (req,res)=>{
-  res.send("hello")
-})
-
-server.listen(app.get('port'))
-
-const io = SocketIo(socketServer)
+// initialize and run socket server
+const socketServer = http.createServer()
+const io = socket(socketServer)
 socketEvents(io)
+socketServer.listen(3002, () => {
+    console.log('Server is running on port 3002...')
+})

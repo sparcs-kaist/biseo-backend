@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 const username = ["Jack", "Lukas", "James", "Oliver", "Sophia", "Emma", "Aria", "Amelia"] // SSO 로그인 구현 전 임시 유저 배열
 let accessors = [] // 접속자 배열
 
-module.exports = io => {
+export default io => {
     io.on('connection', socket => {
         let decoded = ''
         try {
