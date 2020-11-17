@@ -7,7 +7,7 @@ import socket from 'socket.io'
 import Redis from 'ioredis'
 import session from 'express-session'
 import routes from './routes'
-import socketEvents from './socket.js'
+import initializeSocket from './socket.js'
 
 // initialize and run http server
 const app = express()
@@ -34,13 +34,13 @@ app.use(express.json())
 app.use('/api', routes)
 
 app.listen(app.get('port'), () => {
-    console.log(`Server is running on port ${app.get('port')}...`)
+    console.log(`HTTP server running on port ${app.get('port')}...`)
 })
 
 // initialize and run socket server
 const socketServer = http.createServer()
 const io = socket(socketServer)
-socketEvents(io)
+initializeSocket(io)
 socketServer.listen(3002, () => {
-    console.log('Server is running on port 3002...')
+    console.log('Socket server running on port 3002...')
 })
