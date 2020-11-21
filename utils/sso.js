@@ -1,4 +1,8 @@
-import Client from './sparcsssov2-node'
-const client = new Client(process.env.SSO_CLIENT_ID, process.env.SSO_SECRET, false)
+import Client from './sparcsssov2-node';
+const client = new Client(
+    process.env.SSO_CLIENT_ID,
+    process.env.SSO_SECRET,
+    false
+);
 
-export default client
+export default client;

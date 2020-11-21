@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 /*
  * This file defines socket events for chatting and exports `initializeSocket`,
@@ -22,20 +22,29 @@ import jwt from 'jsonwebtoken'
  *      chat message:    sent to other users when a user sends a message to this socket server.
  */
 
-const randomNames = ["Jack", "Lukas", "James", "Oliver", "Sophia", "Emma", "Aria", "Amelia"] // SSO 로그인 구현 전 임시 유저 배열
-const accessors = {}
+const randomNames = [
+    'Jack',
+    'Lukas',
+    'James',
+    'Oliver',
+    'Sophia',
+    'Emma',
+    'Aria',
+    'Amelia'
+]; // SSO 로그인 구현 전 임시 유저 배열
+const accessors = {};
 
 const getUsername = token => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        return decoded.sparcs_id
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        return decoded.sparcs_id;
     } catch (err) {
-        return randomNames[Math.floor(Math.random() * randomNames.length)]
+        return randomNames[Math.floor(Math.random() * randomNames.length)];
     }
-}
+};
 
 const getConnectedMembers = () =>
-    Object.keys(accessors).filter(user => accessors[user] > 0)
+    Object.keys(accessors).filter(user => accessors[user] > 0);
 
 const registerSocketDisconnect = (socket, username) => {
     socket.on('disconnect', () => {
@@ -43,44 +52,45 @@ const registerSocketDisconnect = (socket, username) => {
             // something's wrong
             return;
 
-        accessors[username] -= 1
+        accessors[username] -= 1;
         if (accessors[username] > 0)
             // no need to broadcast. user is still here
             return;
 
-        const members = getConnectedMembers()
-        socket.broadcast.emit('members', members) // 접속자가 변경되었으므로 전체 유저에게 변경된 접속자를 보내줌
-        socket.broadcast.emit('out', username) // 전체 유저에게 누가 나갔는지 보내줌
-    })
-}
+        const members = getConnectedMembers();
+        socket.broadcast.emit('members', members); // 접속자가 변경되었으므로 전체 유저에게 변경된 접속자를 보내줌
+        socket.broadcast.emit('out', username); // 전체 유저에게 누가 나갔는지 보내줌
+    });
+};
 
 const registerSocketChatMessage = (socket, username) => {
     socket.on('chat message', message => {
-        socket.broadcast.emit('chat message', username, message) // 유저가 chat message 로 메시지를 socket에게 보냄 -> 전체에게 메시지 뿌려줌
-    })
-}
+        socket.broadcast.emit('chat message', username, message); // 유저가 chat message 로 메시지를 socket에게 보냄 -> 전체에게 메시지 뿌려줌
+    });
+};
 
 const initializeSocket = io => {
     io.on('connection', socket => {
-        const user = getUsername(socket.handshake.query['token'])
+        const user = getUsername(socket.handshake.query['token']);
 
-        const isNewUser = !accessors.hasOwnProperty(user) || accessors[user] === 0
-        const members = getConnectedMembers()
+        const isNewUser =
+            !accessors.hasOwnProperty(user) || accessors[user] === 0;
+        const members = getConnectedMembers();
 
         if (isNewUser) {
-            accessors[user] = 1
-            members.push(user)
-            socket.broadcast.emit('enter', user)  // broadcast the user's entrance
+            accessors[user] = 1;
+            members.push(user);
+            socket.broadcast.emit('enter', user); // broadcast the user's entrance
         } else {
-            accessors[user] += 1
+            accessors[user] += 1;
         }
 
-        socket.emit('members', members)           // send list of members to new user
-        socket.emit('name', user)                 // send username to new user
+        socket.emit('members', members); // send list of members to new user
+        socket.emit('name', user); // send username to new user
 
-        registerSocketDisconnect(socket, user)
-        registerSocketChatMessage(socket, user)
-    })
-}
+        registerSocketDisconnect(socket, user);
+        registerSocketChatMessage(socket, user);
+    });
+};
 
-export default initializeSocket
+export default initializeSocket;
