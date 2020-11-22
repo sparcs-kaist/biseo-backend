@@ -34,12 +34,28 @@ const randomNames = [
 ]; // SSO 로그인 구현 전 임시 유저 배열
 const accessors = {};
 
-const getUsername = token => {
+/*
+ * getUserInformation - extract user information from JWT(JSON Web Token)
+ *  this function returns an object that has two keys:
+ *  {
+ *      username: user's nickname for chat. either SPARCS nickname or random
+ *      isAdmin: boolean value indicating whether this user is admin
+ *  }
+ */
+const getUserInformation = token => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        return decoded.sparcs_id;
+        const { sparcs_id, isAdmin } = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        return { username: sparcs_id, isAdmin };
     } catch (err) {
-        return randomNames[Math.floor(Math.random() * randomNames.length)];
+        return {
+            username:
+                randomNames[Math.floor(Math.random() * randomNames.length)],
+            isAdmin: false
+        };
     }
 };
 
@@ -48,7 +64,7 @@ const getConnectedMembers = () =>
 
 const registerSocketDisconnect = (socket, username) => {
     socket.on('disconnect', () => {
-        if (!accessors.hasOwnProperty(username) || accessors[username] === 0)
+        if (!(username in accessors) || accessors[username] === 0)
             // something's wrong
             return;
 
@@ -64,32 +80,34 @@ const registerSocketDisconnect = (socket, username) => {
 };
 
 const registerSocketChatMessage = (socket, username) => {
-    socket.on('chat message', message => {
-        socket.broadcast.emit('chat message', username, message); // 유저가 chat message 로 메시지를 socket에게 보냄 -> 전체에게 메시지 뿌려줌
+    socket.on('chat', message => {
+        socket.broadcast.emit('chat', username, message); // 유저가 chat message 로 메시지를 socket에게 보냄 -> 전체에게 메시지 뿌려줌
     });
 };
 
 const initializeSocket = io => {
     io.on('connection', socket => {
-        const user = getUsername(socket.handshake.query['token']);
+        const { username, isAdmin } = getUserInformation(
+            socket.handshake.query['token']
+        );
+        socket.isAdmin = isAdmin;
 
-        const isNewUser =
-            !accessors.hasOwnProperty(user) || accessors[user] === 0;
+        const isNewUser = !(username in accessors) || accessors[username] === 0;
         const members = getConnectedMembers();
 
         if (isNewUser) {
-            accessors[user] = 1;
-            members.push(user);
-            socket.broadcast.emit('enter', user); // broadcast the user's entrance
+            accessors[username] = 1;
+            members.push(username);
+            socket.broadcast.emit('enter', username); // broadcast the user's entrance
         } else {
-            accessors[user] += 1;
+            accessors[username] += 1;
         }
 
         socket.emit('members', members); // send list of members to new user
-        socket.emit('name', user); // send username to new user
+        socket.emit('name', username); // send username to new user
 
-        registerSocketDisconnect(socket, user);
-        registerSocketChatMessage(socket, user);
+        registerSocketDisconnect(socket, username);
+        registerSocketChatMessage(socket, username);
     });
 };
 

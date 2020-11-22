@@ -36,7 +36,7 @@ export const loginCallback = async (req, res) => {
 
     const user = await client.getUserInfo(code);
     const isUserAdmin = await Admin.exists({ username: user.sparcs_id });
-    const token = jwtSign(user, req.app.get('jwt-secret'));
+    const token = jwtSign(user, isUserAdmin, req.app.get('jwt-secret'));
 
     res.status(200).json({
         token,
