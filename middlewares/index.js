@@ -1,17 +1,22 @@
 import jwt from 'jsonwebtoken';
 
-const authMiddleware = (req, res, next) => {
-    const jwtSecret = req.app.get('jwt-secret');
-    const token = req.headers['x-access-token'] || '';
+export const authMiddleware = (req, res, next) => {
+    if (!req.headers['x-access-token'])
+        res.status(403).json({
+            error: 'Unauthorized. Please log in!'
+        });
 
-    jwt.verify(token, jwtSecret, (err, decode) => {
+    const token = req.headers['x-access-token'].split(' ')[1] || '';
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             res.status(403).json({
                 error: err.message
             });
             return;
         }
-        req.decoded = decode;
+
+        req.decoded = decoded;
         req.token = token;
         next();
     });

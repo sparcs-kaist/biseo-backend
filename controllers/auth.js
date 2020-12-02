@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { jwtSign } from '../utils/jwt.js';
 import client from '../utils/sso.js';
+import Admin from '../models/admin.js';
 
 export const authCheck = (req, res) => {
     const jwtSecret = req.app.get('jwt-secret');
@@ -8,7 +9,7 @@ export const authCheck = (req, res) => {
 
     if (!token) return res.json({ success: false });
 
-    jwt.verify(token.split(' ')[1], jwtSecret, (err, decode) => {
+    jwt.verify(token.split(' ')[1], jwtSecret, (err, _) => {
         if (err) {
             return res.json({ success: false });
         }
@@ -19,9 +20,7 @@ export const authCheck = (req, res) => {
 export const login = (req, res) => {
     const { url, state } = client.getLoginParams();
     req.session.state = state;
-    res.json({
-        url: url
-    });
+    res.json({ url });
 };
 
 export const loginCallback = async (req, res) => {
@@ -36,10 +35,11 @@ export const loginCallback = async (req, res) => {
     }
 
     const user = await client.getUserInfo(code);
-    const token = jwtSign(user, req.app.get('jwt-secret'));
+    const isUserAdmin = await Admin.exists({ username: user.sparcs_id });
+    const token = jwtSign(user, isUserAdmin, req.app.get('jwt-secret'));
 
     res.status(200).json({
-        token: token,
+        token,
         status: 200
     });
 };
