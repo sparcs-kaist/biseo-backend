@@ -65,9 +65,9 @@ export const registerAdminCreate = (socket, io) => {
 
         if (!result) return;
 
-        const { title, content, subtitle, choices, expires } = result;
+        const { _id, title, content, subtitle, choices, expires } = result;
         io.emit('vote:created', {
-            id: result._id,
+            _id,
             title,
             content,
             subtitle,
