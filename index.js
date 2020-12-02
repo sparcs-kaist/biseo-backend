@@ -2,14 +2,12 @@ import './config';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import express from 'express';
-import http from 'http';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import Redis from 'ioredis';
 import session from 'express-session';
-import socket from 'socket.io';
 import routes from './routes';
-import initializeSocket from './socket.js';
+import socketServer from './socket';
 
 // initialize and run http server
 const app = express();
@@ -54,10 +52,6 @@ app.listen(app.get('port'), () => {
     console.log(`HTTP server running on port ${app.get('port')}...`);
 });
 
-// initialize and run socket server
-const socketServer = http.createServer();
-const io = socket(socketServer);
-initializeSocket(io);
 socketServer.listen(3002, () => {
     console.log('Socket server running on port 3002...');
 });

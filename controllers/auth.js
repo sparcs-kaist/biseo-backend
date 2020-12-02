@@ -9,7 +9,7 @@ export const authCheck = (req, res) => {
 
     if (!token) return res.json({ success: false });
 
-    jwt.verify(token.split(' ')[1], jwtSecret, (err, decode) => {
+    jwt.verify(token.split(' ')[1], jwtSecret, (err, _) => {
         if (err) {
             return res.json({ success: false });
         }
