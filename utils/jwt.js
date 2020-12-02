@@ -7,7 +7,7 @@ export const jwtSign = (user, isAdmin, jwtSecret) =>
             first_name: user.first_name,
             last_name: user.last_name,
             sparcs_id: user.sparcs_id,
-            admin: isAdmin
+            isAdmin
         },
         jwtSecret,
         {
