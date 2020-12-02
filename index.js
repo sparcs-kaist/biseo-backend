@@ -23,7 +23,6 @@ mongoose.connect('mongodb://localhost/biseo', {
     useFindAndModify: false
 });
 
-app.set('jwt-secret', process.env.JWT_SECRET);
 app.set('port', 3000);
 
 app.use(morgan('dev'));
