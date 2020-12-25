@@ -4,7 +4,7 @@ import client from '../utils/sso.js';
 import Admin from '../models/admin.js';
 
 export const authCheck = (req, res) => {
-    const jwtSecret = req.app.get('jwt-secret');
+    const jwtSecret = process.env.JWT_SECRET;
     const token = req.headers['x-access-token'] || '';
 
     if (!token) return res.json({ success: false });
@@ -36,7 +36,7 @@ export const loginCallback = async (req, res) => {
 
     const user = await client.getUserInfo(code);
     const isUserAdmin = await Admin.exists({ username: user.sparcs_id });
-    const token = jwtSign(user, isUserAdmin, req.app.get('jwt-secret'));
+    const token = jwtSign(user, isUserAdmin, process.env.JWT_SECRET);
 
     res.status(200).json({
         token,
