@@ -46,7 +46,7 @@ export const registerChatMessage = (socket, username) => {
  *   client sockets.
  */
 export const registerAdminCreate = (socket, io) => {
-    socket.on('admin:create', async payload => {
+    socket.on('admin:create', async (payload, callback) => {
         // payload has 4 members. title, content, subtitle, choices
         const currentTime = Date.now();
 
@@ -59,11 +59,16 @@ export const registerAdminCreate = (socket, io) => {
             expires: new Date(currentTime + validDuration)
         });
 
-        const result = await newVoteItem
-            .save()
-            .catch(() => console.error('Error while inserting new vote'));
+        const result = await newVoteItem.save().catch(() => {
+            console.error('Error while inserting new vote');
+            callback({ success: false });
+        });
 
-        if (!result) return;
+        if (!result) {
+            callback({ success: false });
+            return;
+        }
+        callback({ success: true });
 
         const { _id, title, content, subtitle, choices, expires } = result;
         io.emit('vote:created', {
