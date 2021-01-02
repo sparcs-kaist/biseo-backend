@@ -24,10 +24,13 @@ const voteSchema = mongoose.Schema(
         },
         submissions: {
             type: [
-                {
-                    username: String,
-                    choice: String
-                }
+                mongoose.Schema(
+                    {
+                        username: String,
+                        choice: String
+                    },
+                    { _id: false }
+                )
             ],
             default: []
         }
