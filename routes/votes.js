@@ -77,10 +77,8 @@ router.put('/:id', async (req, res) => {
         });
     });
 
-    if (result)
-        res.json({
-            success: true
-        });
+    if (result) res.json({ success: true });
+    else res.json({ success: false });
 });
 
 export default router;
