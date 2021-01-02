@@ -13,6 +13,13 @@
     ],
     "rules": {
         "prettier/prettier": 2,
-        "no-empty": ["error", { "allowEmptyCatch": true  }]
+        "no-empty": ["error", { "allowEmptyCatch": true  }],
+        "no-unused-vars": [
+          "error",
+          {
+            "args": "all",
+            "argsIgnorePattern": "^_"
+          }
+        ]
     }
 }
