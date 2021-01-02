@@ -68,7 +68,8 @@ router.put('/:id', async (req, res) => {
     };
 
     const result = await Vote.updateOne(
-        { _id: id },
+        // do not update if this user has already voted
+        { _id: id, 'submissions.username': { $ne: sparcs_id } },
         { $push: { submissions: submission } }
     ).catch(error => {
         res.json({
