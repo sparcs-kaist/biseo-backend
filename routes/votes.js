@@ -40,16 +40,42 @@ router.get('/', async (req, res) => {
         },
         {
             $project: {
-                hasAlreadyVoted: '$userVoteStatus.hasAlreadyVoted',
                 userChoice: '$userVoteStatus.choice',
                 choices: 1,
                 title: 1,
                 content: 1,
                 subtitle: 1,
-                expires: 1
+                expires: 1,
+                submissions: {
+                    $cond: {
+                        if: {
+                            $gt: [new Date(), '$expires']
+                        },
+                        then: '$submissions',
+                        else: '$$REMOVE'
+                    }
+                }
             }
         }
     ]).catch(err => console.error(err));
+
+    // create an object that stores the number of votes for each choices,
+    // and replace it with the `submissions` field
+    votes.forEach(vote => {
+        // submissions is undefined if vote is not expired yet
+        if (!vote.submissions) return;
+
+        // key is choice (e.g. "찬성", "반대")
+        // value is the number of choices in the `vote.submissions` field
+        const choiceCountMap = {};
+
+        vote.submissions.forEach(({ choice }) => {
+            if (choice in choiceCountMap) choiceCountMap[choice] += 1;
+            else choiceCountMap[choice] = 1;
+        });
+
+        vote.submissions = choiceCountMap;
+    });
 
     res.json({ votes });
 });
