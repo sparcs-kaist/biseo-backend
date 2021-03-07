@@ -1,10 +1,4 @@
-/*
- * middlewares.js
- *
- * this file defines middlewares used by the socket server
- */
-
-import { getUserInformation } from './utils';
+import { getUserInformation } from '../utils';
 
 /*
  * authMiddleware - attach user and auth related properties to socket.request
