@@ -3,8 +3,7 @@ import socket from 'socket.io';
 import { chatListener, adminListener, disconnectListener } from './listeners';
 import { authMiddleware } from './middlewares';
 import { getConnectedMembers } from './utils';
-
-const accessors = {};
+import { accessors } from './mock/accessors';
 
 // initialize and run socket server
 const socketServer = http.createServer();
