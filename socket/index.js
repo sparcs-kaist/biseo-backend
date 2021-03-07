@@ -1,14 +1,9 @@
 import http from 'http';
 import socket from 'socket.io';
-import {
-    registerDisconnect,
-    registerChatMessage,
-    registerAdminCreate
-} from './register';
+import { chatListener, adminListener, disconnectListener } from './listeners';
 import { authMiddleware } from './middlewares';
 import { getConnectedMembers } from './utils';
-
-const accessors = {};
+import { accessors } from './mock/accessors';
 
 // initialize and run socket server
 const socketServer = http.createServer();
@@ -35,13 +30,13 @@ io.on('connection', socket => {
     socket.emit('chat:members', members); // send list of members to new user
     socket.emit('chat:name', username); // send username to new user
 
-    registerDisconnect(socket, accessors, username);
-    registerChatMessage(socket, username);
+    disconnectListener(io, socket);
+    chatListener(io, socket);
 
     if (!isAdmin) return;
 
     // only attach admin listener to admins
-    registerAdminCreate(socket, io);
+    adminListener(io, socket);
 });
 
 export default socketServer;
