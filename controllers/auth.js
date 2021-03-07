@@ -4,16 +4,15 @@ import client from '../utils/sso.js';
 import Admin from '../models/admin.js';
 
 export const authCheck = (req, res) => {
-    const jwtSecret = process.env.JWT_SECRET;
-    const token = req.headers['x-access-token'] || '';
+    const { JWT_SECRET } = process.env;
+    const tokenHeader = req.headers['x-access-token'] || '';
+    const [_, token] = tokenHeader.split(' ');
 
-    if (!token) return res.json({ success: false });
+    if (token === undefined) return res.json({ success: false });
 
-    jwt.verify(token.split(' ')[1], jwtSecret, (err, _) => {
-        if (err) {
-            return res.json({ success: false });
-        }
-        res.json({ success: true });
+    jwt.verify(token, JWT_SECRET, (err, _) => {
+        if (err) res.json({ success: false });
+        else res.json({ success: true });
     });
 };
 
