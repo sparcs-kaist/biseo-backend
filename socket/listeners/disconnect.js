@@ -1,11 +1,11 @@
-import { getConnectedMembers } from './utils';
+import { getConnectedMembers } from '../utils';
 import { accessors } from '../mock/accessors';
 
 /*
  * disconnectListener - register 'disconnect' event to socket
  *   upon disconnection, modify the `accessors` variable and send appropriate events
  */
-export const disconnectListener = socket => {
+export const disconnectListener = (io, socket) => {
     const { username } = socket.request;
 
     socket.on('disconnect', () => {
