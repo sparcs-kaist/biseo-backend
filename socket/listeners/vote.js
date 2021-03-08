@@ -6,39 +6,39 @@ export const voteListener = (io, socket) => {
     socket.on('agenda:vote', async (payload, callback) => {
         // payload has 1 field. choice
         const { username } = socket.request;
-        const { agenda, choice } = payload;
+        const { agendaId, choice } = payload;
 
         const session = await startSession();
         try {
             session.startTransaction();
 
-            await Vote.create({ agenda, username, choice });
+            await Vote.create({ agenda: agendaId, username, choice });
 
-            const agenda = await Agenda.findOne({ _id: agenda });
-            if (!agenda.voteCountMap.has(choice))
+            const agenda = await Agenda.findOne({ _id: agendaId });
+            if (!agenda.votesCountMap.has(choice))
                 throw new Error(
                     `Invalid Choice: ${choice} is not a votable choice`
                 );
 
-            // increment voteCountMap count
-            agenda.voteCountMap.set(
+            // increment votesCountMap count
+            agenda.votesCountMap.set(
                 choice,
-                agenda.voteCountMap.get(choice) + 1
+                agenda.votesCountMap.get(choice) + 1
             );
             await agenda.save();
 
             await session.commitTransaction();
             session.endSession();
-        } catch (err) {
+        } catch (error) {
             await session.abortTransaction();
             session.endSession();
 
-            callback({ success: false, message: err.message });
+            callback({ success: false, message: error.message });
             return;
         }
 
         io.emit('agenda:voted', {
-            agenda,
+            agendaId,
             choice
         });
         callback({ success: true });
