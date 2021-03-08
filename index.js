@@ -1,4 +1,4 @@
-import './config';
+import 'dotenv/config';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import express from 'express';
@@ -19,30 +19,30 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error!'));
 db.once('open', () => console.log('Connected to MongoDB'));
 mongoose.connect('mongodb://localhost/biseo', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
 });
 
 app.set('port', 3000);
 
 app.use(morgan('dev'));
 app.use(
-    session({
-        resave: false,
-        saveUninitialized: true,
-        secret: process.env.REDIS_SECRET,
-        store: new RedisStore({
-            client: redisClient
-        }),
-        cookie: { maxAge: 60000 }
-    })
+  session({
+    resave: false,
+    saveUninitialized: true,
+    secret: process.env.REDIS_SECRET,
+    store: new RedisStore({
+      client: redisClient,
+    }),
+    cookie: { maxAge: 60000 },
+  })
 );
 app.use(
-    cors({
-        origin: process.env.ALLOWED_HOST,
-        credentials: true
-    })
+  cors({
+    origin: process.env.ALLOWED_HOST,
+    credentials: true,
+  })
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -52,5 +52,5 @@ const server = createServer(app);
 attachSocket(server);
 
 server.listen(app.get('port'), () => {
-    console.log(`HTTP & Socket server running on port ${app.get('port')}...`);
+  console.log(`HTTP & Socket server running on port ${app.get('port')}...`);
 });

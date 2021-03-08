@@ -5,6 +5,7 @@
 **Redis**
 
 We expect REDIS server to be running on it's specific port\(3001\).
+
 ```bash
 redis-server --daemonize yes --port 3001
 ```

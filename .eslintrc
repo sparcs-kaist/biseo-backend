@@ -1,26 +1,21 @@
 {
-    "root": true,
-    "parser": "@babel/eslint-parser",
-    "env": {
-        "node": true,
-        "es6": true
-    },
-    "plugins": [
-        "prettier"
-    ],
-    "extends": [
-        "eslint:recommended",
-        "prettier"
-    ],
-    "rules": {
-        "prettier/prettier": 2,
-        "no-empty": ["error", { "allowEmptyCatch": true  }],
-        "no-unused-vars": [
-          "error",
-          {
-            "args": "all",
-            "argsIgnorePattern": "^_"
-          }
-        ]
-    }
+  "root": true,
+  "parser": "@babel/eslint-parser",
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "plugins": ["prettier"],
+  "extends": ["eslint:recommended", "prettier"],
+  "rules": {
+    "prettier/prettier": 2,
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_"
+      }
+    ]
+  }
 }
