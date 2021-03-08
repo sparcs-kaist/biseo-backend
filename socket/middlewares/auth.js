@@ -8,12 +8,12 @@ import { getUserInformation } from '../utils';
  *   `socket.request.isAdmin` is a boolean value describing if this user is the administrator or not.
  */
 export const authMiddleware = (socket, next) => {
-    const { username, isAdmin } = getUserInformation(
-        socket.handshake.query['token']
-    );
+  const { username, isAdmin } = getUserInformation(
+    socket.handshake.query['token']
+  );
 
-    socket.request.username = username;
-    socket.request.isAdmin = isAdmin;
+  socket.request.username = username;
+  socket.request.isAdmin = isAdmin;
 
-    next();
+  next();
 };

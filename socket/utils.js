@@ -1,14 +1,14 @@
 import jwt from 'jsonwebtoken';
 
 const randomNames = [
-    'Jack',
-    'Lukas',
-    'James',
-    'Oliver',
-    'Sophia',
-    'Emma',
-    'Aria',
-    'Amelia'
+  'Jack',
+  'Lukas',
+  'James',
+  'Oliver',
+  'Sophia',
+  'Emma',
+  'Aria',
+  'Amelia',
 ];
 
 /*
@@ -20,20 +20,16 @@ const randomNames = [
  *  }
  */
 export const getUserInformation = token => {
-    try {
-        const { sparcs_id, isAdmin } = jwt.verify(
-            token,
-            process.env.JWT_SECRET
-        );
+  try {
+    const { sparcs_id, isAdmin } = jwt.verify(token, process.env.JWT_SECRET);
 
-        return { username: sparcs_id, isAdmin };
-    } catch (err) {
-        return {
-            username:
-                randomNames[Math.floor(Math.random() * randomNames.length)],
-            isAdmin: false
-        };
-    }
+    return { username: sparcs_id, isAdmin };
+  } catch (err) {
+    return {
+      username: randomNames[Math.floor(Math.random() * randomNames.length)],
+      isAdmin: false,
+    };
+  }
 };
 
 /*
@@ -41,4 +37,4 @@ export const getUserInformation = token => {
  *  this function returns an array of strings
  */
 export const getConnectedMembers = accessors =>
-    Object.keys(accessors).filter(user => accessors[user] > 0);
+  Object.keys(accessors).filter(user => accessors[user] > 0);
