@@ -2,12 +2,13 @@ import './config';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import express from 'express';
+import { createServer } from 'http';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import Redis from 'ioredis';
 import session from 'express-session';
 import routes from './routes';
-import socketServer from './socket';
+import attachSocket from './socket';
 
 // initialize and run http server
 const app = express();
@@ -47,10 +48,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/api', routes);
 
-app.listen(app.get('port'), () => {
-    console.log(`HTTP server running on port ${app.get('port')}...`);
-});
+const server = createServer(app);
+attachSocket(server);
 
-socketServer.listen(3002, () => {
-    console.log('Socket server running on port 3002...');
+server.listen(app.get('port'), () => {
+    console.log(`HTTP & Socket server running on port ${app.get('port')}...`);
 });

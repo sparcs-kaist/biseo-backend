@@ -5,10 +5,7 @@ import Vote from '../models/vote';
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    const now = new Date();
-    const agendas = await Agenda.find({
-        expires: { $gt: now }
-    })
+    const agendas = await Agenda.find({})
         .limit(10)
         .sort({ expires: -1 })
         .lean();
