@@ -1,6 +1,11 @@
 import http from 'http';
 import socket from 'socket.io';
-import { chatListener, adminListener, disconnectListener } from './listeners';
+import {
+    adminListener,
+    chatListener,
+    disconnectListener,
+    voteListener
+} from './listeners';
 import { authMiddleware } from './middlewares';
 import { getConnectedMembers } from './utils';
 import { accessors } from './mock/accessors';
@@ -30,13 +35,17 @@ io.on('connection', socket => {
     socket.emit('chat:members', members); // send list of members to new user
     socket.emit('chat:name', username); // send username to new user
 
-    disconnectListener(io, socket);
+    // listen for chats
     chatListener(io, socket);
 
-    if (!isAdmin) return;
+    // listen for votes
+    voteListener(io, socket);
+
+    // listen to disconnect event
+    disconnectListener(io, socket);
 
     // only attach admin listener to admins
-    adminListener(io, socket);
+    if (isAdmin) adminListener(io, socket);
 });
 
 export default socketServer;
