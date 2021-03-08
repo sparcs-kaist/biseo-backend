@@ -1,38 +1,18 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-const voteSchema = mongoose.Schema(
+const voteSchema = Schema(
     {
-        expires: {
-            type: Date,
-            required: true
+        agenda: {
+            type: Schema.Types.ObjectId,
+            ref: 'Agenda'
         },
-        title: {
+        username: {
             type: String,
             required: true
         },
-        content: {
+        choice: {
             type: String,
             required: true
-        },
-        subtitle: {
-            type: String,
-            required: true
-        },
-        choices: {
-            type: [String],
-            required: true
-        },
-        submissions: {
-            type: [
-                mongoose.Schema(
-                    {
-                        username: String,
-                        choice: String
-                    },
-                    { _id: false }
-                )
-            ],
-            default: []
         }
     },
     {
