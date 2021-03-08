@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 
 const voteSchema = Schema(
     {
-        agenda: {
+        agendaId: {
             type: Schema.Types.ObjectId,
             ref: 'Agenda'
         },

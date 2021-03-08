@@ -16,12 +16,12 @@ router.get('/', async (req, res) => {
     const agendaIds = agendas.map(({ _id }) => _id);
 
     const votes = await Vote.find({
-        agenda: { $in: agendaIds },
+        agendaId: { $in: agendaIds },
         username: req.decoded.sparcs_id
     });
 
     const agendasResponse = agendas.map(agenda => {
-        const userVote = votes.find(vote => vote.agenda.equals(agenda._id));
+        const userVote = votes.find(vote => vote.agendaId.equals(agenda._id));
 
         return {
             ...agenda,

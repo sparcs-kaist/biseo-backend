@@ -12,7 +12,7 @@ export const voteListener = (io, socket) => {
         try {
             session.startTransaction();
 
-            await Vote.create({ agenda: agendaId, username, choice });
+            await Vote.create({ agendaId, username, choice });
 
             const agenda = await Agenda.findOne({ _id: agendaId });
             if (!agenda.votesCountMap.has(choice))
