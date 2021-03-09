@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { SSOUser } from '@/common/types';
 
-export const jwtSign = (
+export const signToken = (
   user: SSOUser,
   isAdmin: boolean,
   jwtSecret: string

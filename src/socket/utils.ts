@@ -29,7 +29,7 @@ export const getUserInformation = (token: string): UserInfo => {
   try {
     const { sparcs_id, isAdmin } = jwt.verify(
       token,
-      process.env.JWT_SECRET as string
+      process.env.TOKEN_SECRET as string
     ) as TokenPayload;
 
     return { username: sparcs_id, isAdmin };

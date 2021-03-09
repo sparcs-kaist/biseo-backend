@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
-import { jwtSign } from '@/utils/jwt';
+import { signToken } from '@/utils/jwt';
 import client from '@/utils/sso';
 import Admin from '@/models/admin';
 
@@ -19,7 +19,7 @@ export const authCheck = (req: Request, res: Response): void => {
     return;
   }
 
-  jwt.verify(token, process.env.JWT_SECRET as string, (err, _) => {
+  jwt.verify(token, process.env.TOKEN_SECRET as string, (err, _) => {
     if (err) res.json({ success: false });
     else res.json({ success: true });
   });
@@ -47,7 +47,11 @@ export const loginCallback = async (
 
   const user = await client.getUserInfo(code);
   const isUserAdmin = await Admin.exists({ username: user.sparcs_id });
-  const token = jwtSign(user, isUserAdmin, process.env.JWT_SECRET as string);
+  const token = signToken(
+    user,
+    isUserAdmin,
+    process.env.TOKEN_SECRET as string
+  );
 
   res.status(200).json({ token });
 };
