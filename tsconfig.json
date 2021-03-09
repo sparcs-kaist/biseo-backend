@@ -10,9 +10,12 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "baseUrl": "./src",
+    "rootDir": "./src",
     "paths": {
       "@/*": ["*"]
     },
     "skipLibCheck": true
-  }
+  },
+  "include": ["./src"],
+  "exclude": ["tsconfig-paths-bootstrap.js"]
 }
