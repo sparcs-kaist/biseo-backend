@@ -31,7 +31,7 @@ app.use(
   session({
     resave: false,
     saveUninitialized: true,
-    secret: process.env.REDIS_SECRET ?? 'keyboard cat',
+    secret: process.env.SESSION_SECRET ?? 'keyboard cat',
     store: new RedisStore({
       client: redisClient,
     }),
