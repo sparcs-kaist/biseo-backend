@@ -1,7 +1,17 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { MongoDocument } from '@/common/types';
+
+export interface BaseAgenda {
+  expires: Date;
+  title: string;
+  content: string;
+  subtitle: string;
+  choices: string[];
+  votesCountMap: Map<string, number>;
+}
 
 // agenda === 안건
-const agendaSchema = Schema(
+const agendaSchema = new Schema(
   {
     expires: {
       type: Date,
@@ -40,4 +50,4 @@ const agendaSchema = Schema(
   }
 );
 
-export default mongoose.model('Agenda', agendaSchema);
+export default model<MongoDocument<BaseAgenda>>('Agenda', agendaSchema);

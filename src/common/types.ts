@@ -1,3 +1,7 @@
+import { Document } from 'mongoose';
+
+export type MongoDocument<T> = T & Document;
+
 export interface SSOUser {
   uid: string;
   sid: string;
