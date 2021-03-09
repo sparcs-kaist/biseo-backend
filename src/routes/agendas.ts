@@ -1,5 +1,5 @@
 import express from 'express';
-import * as agenda from '../controllers/agenda';
+import * as agenda from '@/controllers/agenda';
 
 const router = express.Router();
 

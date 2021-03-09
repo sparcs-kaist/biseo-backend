@@ -2,10 +2,12 @@ import { Schema, model, Document } from 'mongoose';
 import { MongoDocument } from '@/common/types';
 
 export interface BaseVote {
-  agendaId: Pick<Document, '_id'>;
+  agendaId: Document['_id'];
   username: string;
   choice: string;
 }
+
+export type VoteDocument = MongoDocument<BaseVote>;
 
 const voteSchema = new Schema(
   {
@@ -27,4 +29,4 @@ const voteSchema = new Schema(
   }
 );
 
-export default model<MongoDocument<BaseVote>>('Vote', voteSchema);
+export default model<VoteDocument>('Vote', voteSchema);

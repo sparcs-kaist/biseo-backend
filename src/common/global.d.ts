@@ -6,3 +6,9 @@ declare module 'express-serve-static-core' {
     token: string;
   }
 }
+
+declare module 'express-session' {
+  interface SessionData {
+    state: string;
+  }
+}

@@ -10,6 +10,8 @@ export interface BaseAgenda {
   votesCountMap: Map<string, number>;
 }
 
+export type AgendaDocument = MongoDocument<BaseAgenda>;
+
 // agenda === 안건
 const agendaSchema = new Schema(
   {
@@ -50,4 +52,4 @@ const agendaSchema = new Schema(
   }
 );
 
-export default model<MongoDocument<BaseAgenda>>('Agenda', agendaSchema);
+export default model<AgendaDocument>('Agenda', agendaSchema);

@@ -1,12 +1,19 @@
-import Agenda from '../models/agenda';
-import Vote from '../models/vote';
+import { Request, Response } from 'express';
+import Agenda, { AgendaDocument } from '@/models/agenda';
+import Vote, { VoteDocument } from '@/models/vote';
 
-export const getAgendas = async (req, res) => {
-  const agendas = await Agenda.find({}).limit(10).sort({ expires: -1 }).lean();
+export const getAgendas = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const agendas: AgendaDocument[] = await Agenda.find({})
+    .limit(10)
+    .sort({ expires: -1 })
+    .lean();
 
   const agendaIds = agendas.map(({ _id }) => _id);
 
-  const votes = await Vote.find({
+  const votes: VoteDocument[] = await Vote.find({
     agendaId: { $in: agendaIds },
     username: req.decoded.sparcs_id,
   });
@@ -23,7 +30,7 @@ export const getAgendas = async (req, res) => {
   res.json({ agendas: agendasResponse });
 };
 
-export const getAgenda = async (req, res) => {
+export const getAgenda = async (req: Request, res: Response): Promise<void> => {
   const { sparcs_id } = req.decoded;
   const _id = req.params.id;
 

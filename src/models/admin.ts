@@ -5,6 +5,8 @@ export interface BaseAdmin {
   username: string;
 }
 
+export type AdminDocument = MongoDocument<BaseAdmin>;
+
 const adminSchema = new Schema(
   {
     username: {
@@ -17,4 +19,4 @@ const adminSchema = new Schema(
   }
 );
 
-export default model<MongoDocument<BaseAdmin>>('Admin', adminSchema);
+export default model<AdminDocument>('Admin', adminSchema);
