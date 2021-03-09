@@ -1,22 +1,19 @@
 {
-  "name": "biseo_sso_server",
+  "name": "SPARCS-Biseo-Backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
     "prepare": "husky install",
     "dev": "nodemon"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/quark325/biseo_sso_server.git"
+    "url": "git+https://github.com/sparcs-kaist/biseo-backend.git"
   },
-  "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/quark325/biseo_sso_server/issues"
+    "url": "git+https://github.com/sparcs-kaist/biseo-backend/issues"
   },
-  "homepage": "https://github.com/quark325/biseo_sso_server#readme",
+  "homepage": "https://github.com/sparcs-kaist/biseo-backend#readme",
   "dependencies": {
     "axios": "^0.21.1",
     "connect-redis": "^4.0.4",
