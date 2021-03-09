@@ -25,7 +25,9 @@
       "error",
       {
         "args": "all",
-        "argsIgnorePattern": "^_"
+        "argsIgnorePattern": "^_",
+        "vars": "all",
+        "varsIgnorePattern": "^_"
       }
     ]
   }
