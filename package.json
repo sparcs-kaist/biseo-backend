@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "prepare": "husky install",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
