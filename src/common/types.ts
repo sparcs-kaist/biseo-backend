@@ -18,3 +18,15 @@ export interface SSOUser {
   kaist_info_time: string;
   sparcs_id: string;
 }
+
+export type TokenPayload = Pick<
+  SSOUser,
+  'uid' | 'first_name' | 'last_name' | 'sparcs_id'
+> & {
+  isAdmin: boolean;
+};
+
+export interface SuccessStatusResponse {
+  success: boolean;
+  message?: string;
+}

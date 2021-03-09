@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { TokenPayload } from '@/common/types';
 
 const randomNames = [
   'Jack',
@@ -11,6 +12,11 @@ const randomNames = [
   'Amelia',
 ];
 
+interface UserInfo {
+  username: string;
+  isAdmin: boolean;
+}
+
 /*
  * getUserInformation - extract user information from JWT(JSON Web Token)
  *  this function returns an object that has two keys:
@@ -19,9 +25,12 @@ const randomNames = [
  *      isAdmin: boolean value indicating whether this user is admin
  *  }
  */
-export const getUserInformation = token => {
+export const getUserInformation = (token: string): UserInfo => {
   try {
-    const { sparcs_id, isAdmin } = jwt.verify(token, process.env.JWT_SECRET);
+    const { sparcs_id, isAdmin } = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as TokenPayload;
 
     return { username: sparcs_id, isAdmin };
   } catch (err) {
@@ -36,5 +45,6 @@ export const getUserInformation = token => {
  * getConnectedMembers - get member names that are currently connected to the server socket.
  *  this function returns an array of strings
  */
-export const getConnectedMembers = accessors =>
-  Object.keys(accessors).filter(user => accessors[user] > 0);
+export const getConnectedMembers = (
+  accessors: Record<string, number>
+): string[] => Object.keys(accessors).filter(user => accessors[user] > 0);

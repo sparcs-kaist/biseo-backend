@@ -1,3 +1,4 @@
+import http from 'http';
 import socket from 'socket.io';
 import {
   adminListener,
@@ -9,7 +10,7 @@ import { authMiddleware } from './middlewares';
 import { getConnectedMembers } from './utils';
 import { accessors } from './mock/accessors';
 
-export default httpServer => {
+export default (httpServer: http.Server): void => {
   const io = socket(httpServer);
 
   // attach auth related properties to socket
