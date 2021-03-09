@@ -33,8 +33,8 @@ class Client {
       notice: 'notice/',
     };
 
-    this.DOMAIN = (isBeta ? BETA_DOMAIN : SERVER_DOMAIN);
-    this.DOMAIN = (serverAddr === '' ? this.DOMAIN : serverAddr);
+    this.DOMAIN = isBeta ? BETA_DOMAIN : SERVER_DOMAIN;
+    this.DOMAIN = serverAddr === '' ? this.DOMAIN : serverAddr;
 
     const baseUrl = [this.DOMAIN, API_PREFIX, VERSION_PREFIX].join('');
     this.URLS = {};
@@ -52,7 +52,10 @@ class Client {
       payload.push(timestamp);
     }
     const msg = Buffer.from(payload.join(''), 'utf8');
-    const sign = crypto.createHmac('md5', this.secretKey).update(msg).digest('hex');
+    const sign = crypto
+      .createHmac('md5', this.secretKey)
+      .update(msg)
+      .digest('hex');
     return { sign, timestamp };
   }
 
@@ -101,7 +104,12 @@ class Client {
       client_id: clientId,
       state,
     };
-    const url = [URLS.token_require, Object.entries(params).map(e => e.join('=')).join('&')].join('?');
+    const url = [
+      URLS.token_require,
+      Object.entries(params)
+        .map(e => e.join('='))
+        .join('&'),
+    ].join('?');
     return { url, state };
   }
 
@@ -141,7 +149,12 @@ class Client {
       redirect_uri: redirectUri,
       sign,
     };
-    return [this.URLS.logout, Object.entries(params).map(e => e.join('=')).join('&')].join('?');
+    return [
+      this.URLS.logout,
+      Object.entries(params)
+        .map(e => e.join('='))
+        .join('&'),
+    ].join('?');
   }
 
   getPoint(sid) {
@@ -162,7 +175,12 @@ class Client {
       :param lowerBound: a minimum point value that required
       :returns: a server response; check the full docs
     */
-    const { sign, timestamp } = this._signPayload([sid, delta, message, lowerBound]);
+    const { sign, timestamp } = this._signPayload([
+      sid,
+      delta,
+      message,
+      lowerBound,
+    ]);
     const params = {
       client_id: this.clientId,
       sid,
@@ -201,9 +219,7 @@ class Client {
     }
   }
 
-  parseUnregisterRequest({
-    clientId, sid, timestamp, sign,
-  }) {
+  parseUnregisterRequest({ clientId, sid, timestamp, sign }) {
     /*
       Parse unregister request from SPARCS SSO server
       :param data_dict: a data dictionary that the server sent
