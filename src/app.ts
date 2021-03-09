@@ -2,7 +2,6 @@ import connectRedis from 'connect-redis';
 import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
-import mongoose from 'mongoose';
 import morgan from 'morgan';
 import Redis from 'ioredis';
 import session from 'express-session';
@@ -13,16 +12,11 @@ import attachSocket from './socket';
 const app = express();
 
 const RedisStore = connectRedis(session);
-const REDIS_PORT = Number(process.env.REDIS_PORT) || 0;
-const redisClient = new Redis(REDIS_PORT);
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error!'));
-db.once('open', () => console.log('Connected to MongoDB'));
-mongoose.connect('mongodb://localhost/biseo', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
+const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
+const REDIS_HOST = process.env.REDIS_HOST ?? 'localhost';
+const redisClient = new Redis({
+  port: REDIS_PORT,
+  host: REDIS_HOST,
 });
 
 app.use(morgan('dev'));
