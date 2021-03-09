@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import express from 'express';
