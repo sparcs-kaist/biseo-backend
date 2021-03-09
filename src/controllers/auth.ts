@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { jwtSign } from '@/utils/jwt';
-import client from '@/utils/sso.js';
+import client from '@/utils/sso';
 import Admin from '@/models/admin';
 
 export const authCheck = (req: Request, res: Response): void => {
