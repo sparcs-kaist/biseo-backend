@@ -7,8 +7,8 @@ import Admin from '@/models/admin';
 export const authCheck = (req: Request, res: Response): void => {
   const tokenHeader = req.headers['x-access-token'];
   if (typeof tokenHeader !== 'string') {
-    res.status(500).json({
-      error: 'Token secret not initialized!',
+    res.status(404).json({
+      error: 'Token not included in request!',
     });
     return;
   }
