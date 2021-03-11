@@ -1,39 +1,54 @@
-# biseo_sso_server
+# SPARCS Biseo Backend (WIP)
+
+## About
+
+SPARCS Biseo project aims to serve as an internal tool to manage various tasks within SPARCS, especially those related to end-of-semester meetings such as creating votes, voting, chatting, and etc.
+
+## Getting Started
+
+To get started, first clone this repository using `git clone`. Then install dependencies using `npm install`.
 
 ### Prerequisites
 
 **Redis**
 
-We expect REDIS server to be running on it's specific port\(3001\).
+We expect a Redis server to be running. To specify its host and port, please refer to the `.env` file.
+
+**MongoDB**
+
+We also expect MongoDB to be running, at port 27017(default port). To specify its host, please refer to the `.env` file.
+
+### Environment Variables
+
+This project makes use of environment variables for variable API endpoints. Please refer to `.env.example` for the variables that must be filled out, and create an `.env` file _with the same format_ at the project root.
 
 ```bash
-redis-server --daemonize yes --port 3001
+$ cp .env.example .env  # copy the template to .env
+$ vim .env              # open .env with your favorite editor
 ```
 
-**Environment Secrets**
-
-List of environment variables required are specified in [here](https://github.com/sparcs-kaist/biseo_backend/blob/master/config/.env.example)
-
-You can find proper values for those [here](https://wiki.sparcs.org/w/index.php/%EC%8A%A4%EB%B9%84%EC%84%9C)
-
-In order to get a new SSO client id and secrets, refer [SPARCS SSO Dev Center](https://sparcssso.kaist.ac.kr/dev/main/)
+In order to get a new SSO client id and secret pair, please refer to the [SPARCS SSO Dev Center](https://sparcssso.kaist.ac.kr/dev/main/)
 
 **!important: Please be extra careful not to upload any kind of secrets on github.**
 
-### Getting Started
+#### Running the Development Server
 
-#### Running Development Server
-
-```text
-You need Mongodb and Redis running on your local machine before running our server.
-Please check *prerequisites*(#prerequisites) to find out more
-```
-
-**npm**
-
-Run server
+After you have Redis and MongoDB instances to connect to, and have filled in the appropriate environment variables, you can run:
 
 ```bash
-npm install // Installing dependencied with node js package manager
-npm run start // Run development server with nodemon watching ./src folder
+npm run dev # run dev server with nodemon
+```
+
+## Building the Project
+
+For a production build of the project, run:
+
+```bash
+npm run build
+```
+
+To run the production build, run:
+
+```bash
+npm run prod
 ```
