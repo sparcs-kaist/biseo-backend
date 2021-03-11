@@ -4,6 +4,7 @@
   "scripts": {
     "prepare": "husky install",
     "dev": "nodemon",
+    "dev:docker": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
     "build": "tsc",
     "prod": "node -r ./tsconfig-paths-bootstrap.js dist/index.js"
   },
