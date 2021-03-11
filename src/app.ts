@@ -1,10 +1,10 @@
 import connectRedis from 'connect-redis';
-import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
 import morgan from 'morgan';
 import Redis from 'ioredis';
 import session from 'express-session';
+import { corsMiddleware } from './middlewares';
 import routes from './routes';
 import attachSocket from './socket';
 
@@ -19,6 +19,8 @@ const redisClient = new Redis({
   host: REDIS_HOST,
 });
 
+if (process.env.NODE_ENV === 'development') app.use(corsMiddleware);
+
 app.use(morgan('dev'));
 app.use(
   session({
@@ -29,12 +31,6 @@ app.use(
       client: redisClient,
     }),
     cookie: { maxAge: 60000 },
-  })
-);
-app.use(
-  cors({
-    origin: process.env.ALLOWED_HOST,
-    credentials: true,
   })
 );
 app.use(express.urlencoded({ extended: true }));
