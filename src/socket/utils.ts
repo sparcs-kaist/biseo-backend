@@ -34,7 +34,11 @@ export const getUserInformation = (token: string): UserInfo => {
       process.env.TOKEN_SECRET as string
     ) as TokenPayload;
 
-    return { username: sparcs_id, uid, isAdmin };
+    // sparcs_id is null for SSO test accounts.
+    // in that case, assign a portion of uid to username
+    const username = sparcs_id ?? uid.slice(0, 10);
+
+    return { username, uid, isAdmin };
   } catch (err) {
     return {
       username: randomNames[Math.floor(Math.random() * randomNames.length)],
