@@ -34,8 +34,11 @@ export const getAgenda = async (req: Request, res: Response): Promise<void> => {
   const { sparcs_id } = req.decoded;
   const _id = req.params.id;
 
-  const agendas = await Agenda.findOne({ _id });
-  const userVote = await Vote.findOne({ agenda: _id, username: sparcs_id });
+  const agendas = await Agenda.findOne({ _id }).lean();
+  const userVote = await Vote.findOne({
+    agenda: _id,
+    username: sparcs_id,
+  }).lean();
 
   res.json({
     ...agendas,
