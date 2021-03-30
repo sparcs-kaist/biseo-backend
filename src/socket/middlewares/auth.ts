@@ -12,11 +12,12 @@ export const authMiddleware = (
   socket: Socket,
   next: (err?: Error) => void
 ): void => {
-  const { username, isAdmin } = getUserInformation(
+  const { username, isAdmin, uid } = getUserInformation(
     socket.handshake.query['token']
   );
 
   socket.request.username = username;
+  socket.request.uid = uid;
   socket.request.isAdmin = isAdmin;
 
   next();
