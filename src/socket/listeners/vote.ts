@@ -15,14 +15,14 @@ export const voteListener = (io: Server, socket: Socket): void => {
   socket.on(
     'agenda:vote',
     async (payload: AgendaVotePayload, callback: AdminCreateCallback) => {
-      const { username } = socket.request;
+      const { uid, username } = socket.request;
       const { agendaId, choice } = payload;
 
       const session = await startSession();
       try {
         session.startTransaction();
 
-        await Vote.create({ agendaId, username, choice });
+        await Vote.create({ agendaId, uid, username, choice });
 
         const agenda = await Agenda.findOne({ _id: agendaId });
         if (agenda === null || !agenda.votesCountMap.has(choice))

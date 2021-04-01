@@ -14,6 +14,7 @@ const randomNames = [
 
 interface UserInfo {
   username: string;
+  uid: string;
   isAdmin: boolean;
 }
 
@@ -22,20 +23,26 @@ interface UserInfo {
  *  this function returns an object that has two keys:
  *  {
  *      username: user's nickname for chat. either SPARCS nickname or random
+ *      uid: uid(unique identification number) of user
  *      isAdmin: boolean value indicating whether this user is admin
  *  }
  */
 export const getUserInformation = (token: string): UserInfo => {
   try {
-    const { sparcs_id, isAdmin } = jwt.verify(
+    const { sparcs_id, uid, isAdmin } = jwt.verify(
       token,
       process.env.TOKEN_SECRET as string
     ) as TokenPayload;
 
-    return { username: sparcs_id, isAdmin };
+    // sparcs_id is null for SSO test accounts.
+    // in that case, assign a portion of uid to username
+    const username = sparcs_id ?? uid.slice(0, 10);
+
+    return { username, uid, isAdmin };
   } catch (err) {
     return {
       username: randomNames[Math.floor(Math.random() * randomNames.length)],
+      uid: 'mock-uid',
       isAdmin: false,
     };
   }

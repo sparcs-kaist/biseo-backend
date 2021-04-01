@@ -3,6 +3,7 @@ import { MongoDocument } from '@/common/types';
 
 export interface BaseVote {
   agendaId: Document['_id'];
+  uid: string;
   username: string;
   choice: string;
 }
@@ -14,6 +15,10 @@ const voteSchema = new Schema(
     agendaId: {
       type: Schema.Types.ObjectId,
       ref: 'Agenda',
+    },
+    uid: {
+      type: String,
+      required: true,
     },
     username: {
       type: String,
