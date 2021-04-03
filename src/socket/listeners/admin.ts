@@ -1,10 +1,11 @@
 import { Server, Socket } from 'socket.io';
 import { SuccessStatusResponse } from '@/common/types';
+import { AgendaStatus } from '@/common/enums';
 import Agenda, { BaseAgenda } from '@/models/agenda';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
-  'title' | 'content' | 'subtitle' | 'choices'
+  'title' | 'content' | 'subtitle' | 'choices' | 'status'
 >;
 
 type AdminCreateCallback = (response: SuccessStatusResponse) => void;
@@ -34,6 +35,8 @@ export const adminListener = (io: Server, socket: Socket): void => {
       const newAgenda = new Agenda({
         ...payload,
         votesCountMap,
+        status: AgendaStatus.PREPARE,
+        createDate: Date.now(),
         expires: new Date(currentTime + validDuration),
       });
 
@@ -47,13 +50,22 @@ export const adminListener = (io: Server, socket: Socket): void => {
         return;
       }
 
-      const { _id, title, content, subtitle, expires, choices } = result;
+      const {
+        _id,
+        title,
+        content,
+        subtitle,
+        status,
+        expires,
+        choices,
+      } = result;
       io.emit('agenda:created', {
         _id,
         title,
         content,
         subtitle,
         choices,
+        status,
         expires,
       });
       callback({ success: true });
