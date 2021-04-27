@@ -17,5 +17,6 @@
     "skipLibCheck": true
   },
   "include": ["./src"],
-  "exclude": ["tsconfig-paths-bootstrap.js"]
+  "exclude": ["tsconfig-paths-bootstrap.js"],
+  "files": ["./src/common/global.d.ts"]
 }
