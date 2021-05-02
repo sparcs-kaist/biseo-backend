@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { TokenPayload } from '@/common/types';
+import { redis } from './mock/redis_instance';
 
 const randomNames = [
   'Jack',
@@ -52,6 +53,18 @@ export const getUserInformation = (token: string): UserInfo => {
  * getConnectedMembers - get member names that are currently connected to the server socket.
  *  this function returns an array of strings
  */
-export const getConnectedMembers = (
-  accessors: Record<string, number>
-): string[] => Object.keys(accessors).filter(user => accessors[user] > 0);
+export const getConnectedMembers = async (): Promise<string[]> => {
+  const redisClient = redis.getConnection();
+  try {
+    const keys: string[] = await redisClient.hkeys('accessors');
+
+    const ans: string[] = keys.filter(async key => {
+      const ctUser: number = await redisClient.hget('accessors', key);
+      ctUser > 0;
+    });
+    return ans;
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};

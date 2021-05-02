@@ -2,7 +2,7 @@ import connectRedis from 'connect-redis';
 import express from 'express';
 import { createServer } from 'http';
 import morgan from 'morgan';
-import Redis from 'ioredis';
+import { redis } from './socket/mock/redis_instance';
 import session from 'express-session';
 import { corsMiddleware } from './middlewares';
 import routes from './routes';
@@ -10,14 +10,7 @@ import attachSocket from './socket';
 
 // initialize and run http server
 const app = express();
-
 const RedisStore = connectRedis(session);
-const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
-const REDIS_HOST = process.env.REDIS_HOST ?? 'localhost';
-const redisClient = new Redis({
-  port: REDIS_PORT,
-  host: REDIS_HOST,
-});
 
 if (process.env.NODE_ENV === 'development') app.use(corsMiddleware);
 
@@ -28,7 +21,7 @@ app.use(
     saveUninitialized: true,
     secret: process.env.SESSION_SECRET ?? 'keyboard cat',
     store: new RedisStore({
-      client: redisClient,
+      client: redis.getConnection(),
     }),
     cookie: { maxAge: 60000 },
   })

@@ -8,8 +8,7 @@ import {
 } from './listeners';
 import { authMiddleware } from './middlewares';
 import { getConnectedMembers } from './utils';
-import { accessors } from './mock/accessors';
-
+import { redis } from './mock/redis_instance';
 export default (httpServer: http.Server): void => {
   const io = socket(httpServer);
 
@@ -20,18 +19,22 @@ export default (httpServer: http.Server): void => {
   io.on('connection', socket => {
     const { username, isAdmin } = socket.request;
 
-    const isNewUser = !(username in accessors) || accessors[username] === 0;
-    const members = getConnectedMembers(accessors);
+    const redisClient = redis.getConnection();
+    (async () => {
+      try {
+        const ctUser: string = await redisClient.hget('accessors', username);
+        if (ctUser == null || ctUser == '0') {
+          redisClient.hset('accessors', username, '1');
+        } else {
+          redisClient.hset('accessors', username, String(parseInt(ctUser) + 1));
+        }
+        const members = await getConnectedMembers();
+        socket.emit('chat:members', members); // send list of members to new user
+      } catch (error) {
+        console.log(error);
+      }
+    })();
 
-    if (isNewUser) {
-      accessors[username] = 1;
-      members.push(username);
-      socket.broadcast.emit('chat:enter', username); // broadcast the user's entrance
-    } else {
-      accessors[username] += 1;
-    }
-
-    socket.emit('chat:members', members); // send list of members to new user
     socket.emit('chat:name', username); // send username to new user
 
     // listen for chats
