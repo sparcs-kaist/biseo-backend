@@ -1,5 +1,5 @@
 import http from 'http';
-import socket, { Socket } from 'socket.io';
+import socket from 'socket.io';
 import {
   adminListener,
   chatListener,
@@ -17,7 +17,7 @@ export default (httpServer: http.Server): void => {
   io.use(authMiddleware);
 
   // main logic of listener socket
-  io.on('connection', (socket: Socket) => {
+  io.on('connection', socket => {
     const { sparcs_id, isAdmin } = socket.user;
 
     const isNewUser = !(sparcs_id in accessors) || accessors[sparcs_id] === 0;
