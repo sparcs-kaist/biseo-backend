@@ -21,7 +21,7 @@ export const authMiddleware = (
     // in that case, assign a portion of uid to username
     userInfo.sparcs_id = userInfo.sparcs_id ?? userInfo.uid.slice(0, 10);
 
-    socket.request.user = userInfo;
+    socket.user = userInfo;
     next();
   } catch (err) {
     throw new Error('Invalid Token: error while verifying token');
