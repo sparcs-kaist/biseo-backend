@@ -26,6 +26,8 @@ export type TokenPayload = Pick<
   isAdmin: boolean;
 };
 
+export type UserInfo = TokenPayload;
+
 export interface SuccessStatusResponse {
   success: boolean;
   message?: string;

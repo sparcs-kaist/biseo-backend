@@ -29,7 +29,7 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
       return;
     }
 
-    req.decoded = decoded as SSOUser;
+    req.user = decoded as SSOUser;
     req.token = token;
     next();
   });

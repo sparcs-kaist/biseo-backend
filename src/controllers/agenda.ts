@@ -15,7 +15,7 @@ export const getAgendas = async (
 
   const votes: VoteDocument[] = await Vote.find({
     agendaId: { $in: agendaIds },
-    uid: req.decoded.uid,
+    uid: req.user.uid,
   });
 
   const agendasResponse = agendas.map(agenda => {
@@ -31,7 +31,7 @@ export const getAgendas = async (
 };
 
 export const getAgenda = async (req: Request, res: Response): Promise<void> => {
-  const { sparcs_id } = req.decoded;
+  const { sparcs_id } = req.user;
   const _id = req.params.id;
 
   const agendas = await Agenda.findOne({ _id }).lean();
