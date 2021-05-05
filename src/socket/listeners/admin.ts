@@ -1,7 +1,8 @@
 import { Server, Socket } from 'socket.io';
 import { SuccessStatusResponse } from '@/common/types';
 import { AgendaStatus } from '@/common/enums';
-import Agenda, { BaseAgenda } from '@/models/agenda';
+import Agenda, { BaseAgenda, AgendaDocument } from '@/models/agenda';
+import agenda from '@/models/agenda';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
@@ -9,6 +10,7 @@ type AdminCreatePayload = Pick<
 >;
 
 type AdminCreateCallback = (response: SuccessStatusResponse) => void;
+type AdminExpireCallback = (response: SuccessStatusResponse) => void;
 
 /*
  * adminListener - register 'admin:create' event to socket
@@ -67,6 +69,56 @@ export const adminListener = (io: Server, socket: Socket): void => {
         choices,
         status,
         expires,
+      });
+      callback({ success: true });
+    }
+  );
+
+  socket.on(
+    'admin:expires',
+    async (payload: String, callback: AdminExpireCallback) => {
+      const agenda = await Agenda.findById(payload);
+      if (agenda == null || agenda.status != AgendaStatus.PROGRESS) {
+        callback({ success: false });
+        return;
+      }
+
+      agenda.status = AgendaStatus.END;
+      agenda.expires = new Date(Date.now());
+
+      console.log(agenda);
+
+      const result = await agenda.save().catch(error => {
+        console.error('Error while expiring vote');
+        callback({ success: false, message: error.message });
+      });
+
+      if (!result) {
+        callback({ success: false });
+        return;
+      }
+
+      const {
+        _id,
+        title,
+        content,
+        subtitle,
+        status,
+        expires,
+        choices,
+        createDate,
+        votesCountMap,
+      } = result;
+      io.emit('agenda:expired', {
+        _id,
+        title,
+        content,
+        subtitle,
+        choices,
+        status,
+        expires,
+        createDate,
+        votesCountMap,
       });
       callback({ success: true });
     }
