@@ -3,8 +3,8 @@ import { Socket } from 'socket.io';
 import { TokenPayload } from '@/common/types';
 
 /*
- * authMiddleware - attach user and auth related properties to socket.request
- *   this middleware adds a `socket.request.user` property that contains the
+ * authMiddleware - attach user and auth related properties to socket
+ *   this middleware adds a `socket.user` property that contains the
  *   whole token payload (see `TokenPayload` type in common/types)
  */
 export const authMiddleware = (

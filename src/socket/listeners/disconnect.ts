@@ -7,7 +7,7 @@ import { accessors } from '@/socket/mock/accessors';
  *   upon disconnection, modify the `accessors` variable and send appropriate events
  */
 export const disconnectListener = (io: Server, socket: Socket): void => {
-  const { username } = socket.request;
+  const { sparcs_id: username } = socket.user;
 
   socket.on('disconnect', () => {
     if (!(username in accessors) || accessors[username] === 0)
