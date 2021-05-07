@@ -29,7 +29,7 @@ export const adminListener = (io: Server, socket: Socket): void => {
       // payload has 4 fields. title, content, subtitle, choices
       const currentTime = Date.now();
       // agenda lasts for 3 minutes. this value is arbitrary and temporary
-      const validDuration = 3 * 60 * 1000;
+      const validDuration = 3 * 60 * 60 * 1000;
 
       // all choices are initialized with a vote count of 0
       const votesCountMap = new Map(payload.choices.map(choice => [choice, 0]));
@@ -83,7 +83,6 @@ export const adminListener = (io: Server, socket: Socket): void => {
         return;
       }
 
-      agenda.status = AgendaStatus.END;
       agenda.expires = new Date(Date.now());
 
       console.log(agenda);
