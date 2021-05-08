@@ -122,4 +122,53 @@ export const adminListener = (io: Server, socket: Socket): void => {
       callback({ success: true });
     }
   );
+
+  socket.on(
+    'admin:start',
+    async (payload: String, callback: AdminExpireCallback) => {
+      const agenda = await Agenda.findById(payload);
+      if (agenda == null || agenda.status != AgendaStatus.PREPARE) {
+        callback({ success: false });
+        return;
+      }
+
+      agenda.status = AgendaStatus.PROGRESS;
+
+      console.log(agenda);
+
+      const result = await agenda.save().catch(error => {
+        console.error('Error while Start vote');
+        callback({ success: false, message: error.message });
+      });
+
+      if (!result) {
+        callback({ success: false });
+        return;
+      }
+
+      const {
+        _id,
+        title,
+        content,
+        subtitle,
+        status,
+        expires,
+        choices,
+        createDate,
+        votesCountMap,
+      } = result;
+      io.emit('agenda:started', {
+        _id,
+        title,
+        content,
+        subtitle,
+        choices,
+        status,
+        expires,
+        createDate,
+        votesCountMap,
+      });
+      callback({ success: true });
+    }
+  );
 };
