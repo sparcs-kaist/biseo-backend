@@ -1,8 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { SuccessStatusResponse } from '@/common/types';
 import { AgendaStatus } from '@/common/enums';
-import Agenda, { BaseAgenda, AgendaDocument } from '@/models/agenda';
-import agenda from '@/models/agenda';
+import Agenda, { BaseAgenda } from '@/models/agenda';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
@@ -10,7 +9,7 @@ type AdminCreatePayload = Pick<
 >;
 
 type AdminCreateCallback = (response: SuccessStatusResponse) => void;
-type AdminExpireCallback = (response: SuccessStatusResponse) => void;
+type AdminTerminateCallback = (response: SuccessStatusResponse) => void;
 
 /*
  * adminListener - register 'admin:create' event to socket
@@ -38,7 +37,7 @@ export const adminListener = (io: Server, socket: Socket): void => {
         ...payload,
         votesCountMap,
         status: AgendaStatus.PREPARE,
-        createDate: Date.now(),
+        createDate: new Date(Date.now()),
         expires: new Date(currentTime + validDuration),
       });
 
@@ -75,10 +74,10 @@ export const adminListener = (io: Server, socket: Socket): void => {
   );
 
   socket.on(
-    'admin:expires',
-    async (payload: String, callback: AdminExpireCallback) => {
+    'admin:terminates',
+    async (payload: string, callback: AdminTerminateCallback) => {
       const agenda = await Agenda.findById(payload);
-      if (agenda == null || agenda.status != AgendaStatus.PROGRESS) {
+      if (agenda == null || agenda.status !== AgendaStatus.PROGRESS) {
         callback({ success: false });
         return;
       }
@@ -88,7 +87,7 @@ export const adminListener = (io: Server, socket: Socket): void => {
       console.log(agenda);
 
       const result = await agenda.save().catch(error => {
-        console.error('Error while expiring vote');
+        console.error('Error while terminating agenda');
         callback({ success: false, message: error.message });
       });
 
@@ -108,7 +107,7 @@ export const adminListener = (io: Server, socket: Socket): void => {
         createDate,
         votesCountMap,
       } = result;
-      io.emit('agenda:expired', {
+      io.emit('agenda:terminated', {
         _id,
         title,
         content,
@@ -125,9 +124,9 @@ export const adminListener = (io: Server, socket: Socket): void => {
 
   socket.on(
     'admin:start',
-    async (payload: String, callback: AdminExpireCallback) => {
+    async (payload: string, callback: AdminCreateCallback) => {
       const agenda = await Agenda.findById(payload);
-      if (agenda == null || agenda.status != AgendaStatus.PREPARE) {
+      if (agenda === null || agenda.status !== AgendaStatus.PREPARE) {
         callback({ success: false });
         return;
       }
@@ -137,7 +136,7 @@ export const adminListener = (io: Server, socket: Socket): void => {
       console.log(agenda);
 
       const result = await agenda.save().catch(error => {
-        console.error('Error while Start vote');
+        console.error('Error while starting agenda');
         callback({ success: false, message: error.message });
       });
 

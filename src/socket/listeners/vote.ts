@@ -29,7 +29,7 @@ export const voteListener = (io: Server, socket: Socket): void => {
         if (
           agenda === null ||
           !agenda.votesCountMap.has(choice) ||
-          agenda.status != AgendaStatus.PROGRESS
+          agenda.status !== AgendaStatus.PROGRESS
         )
           throw new Error(`Invalid Choice: ${choice} is not a votable choice`);
 
