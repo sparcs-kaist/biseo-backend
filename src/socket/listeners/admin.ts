@@ -28,7 +28,7 @@ export const adminListener = (io: Server, socket: Socket): void => {
     async (payload: AdminCreatePayload, callback: AdminCreateCallback) => {
       // payload has 4 fields. title, content, subtitle, choices
       const currentTime = Date.now();
-      // agenda lasts for 3 minutes. this value is arbitrary and temporary
+      // agenda lasts for 3 hours. this value is arbitrary and temporary
       const validDuration = 3 * 60 * 60 * 1000;
 
       // all choices are initialized with a vote count of 0
