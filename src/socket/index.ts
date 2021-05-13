@@ -17,7 +17,8 @@ export default (httpServer: http.Server): void => {
 
   // main logic of listener socket
   io.on('connection', socket => {
-    const { username, isAdmin } = socket.request;
+    const { sparcs_id, isAdmin } = socket.user;
+
 
     const redisClient = redis.getConnection();
     (async () => {
@@ -25,6 +26,7 @@ export default (httpServer: http.Server): void => {
         const ctUser: string = await redisClient.hget('accessors', username);
         if (ctUser == null || ctUser == '0') {
           redisClient.hset('accessors', username, '1');
+          socket.broadcast.emit('chat:enter', sparcs_id); // broadcast the user's entrance
         } else {
           redisClient.hset('accessors', username, String(parseInt(ctUser) + 1));
         }
@@ -36,6 +38,7 @@ export default (httpServer: http.Server): void => {
     })();
 
     socket.emit('chat:name', username); // send username to new user
+
 
     // listen for chats
     chatListener(io, socket);

@@ -7,8 +7,10 @@ import { redis } from '../../database/redis_instance';
  *   upon disconnection, modify the `accessors` variable and send appropriate events
  */
 export const disconnectListener = (io: Server, socket: Socket): void => {
-  const { username } = socket.request;
+
+  const { sparcs_id: username } = socket.user;
   const redisClient = redis.getConnection();
+
 
   socket.on('disconnect', async () => {
     try {

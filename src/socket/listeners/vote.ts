@@ -15,7 +15,7 @@ export const voteListener = (io: Server, socket: Socket): void => {
   socket.on(
     'agenda:vote',
     async (payload: AgendaVotePayload, callback: AdminCreateCallback) => {
-      const { uid, username } = socket.request;
+      const { uid, sparcs_id: username } = socket.user;
       const { agendaId, choice } = payload;
 
       const session = await startSession();
