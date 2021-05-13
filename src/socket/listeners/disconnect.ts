@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { getConnectedMembers } from '@/socket/utils';
-import { redis } from '../mock/redis_instance';
+import { redis } from '../../database/redis_instance';
 
 /*
  * disconnectListener - register 'disconnect' event to socket
@@ -17,7 +17,11 @@ export const disconnectListener = (io: Server, socket: Socket): void => {
         // something's wrong
         return;
 
-      redisClient.hset('accessors', username, String(parseInt(ctUser) - 1));
+      await redisClient.hset(
+        'accessors',
+        username,
+        String(parseInt(ctUser) - 1)
+      );
 
       if (parseInt(ctUser) - 1 > 0)
         // no need to broadcast. user is still here
