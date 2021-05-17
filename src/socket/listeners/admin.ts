@@ -77,14 +77,12 @@ export const adminListener = (io: Server, socket: Socket): void => {
     'admin:terminates',
     async (payload: string, callback: AdminTerminateCallback) => {
       const agenda = await Agenda.findById(payload);
-      if (agenda == null || agenda.status !== AgendaStatus.PROGRESS) {
+      if (agenda === null || agenda.status !== AgendaStatus.PROGRESS) {
         callback({ success: false });
         return;
       }
 
       agenda.expires = new Date(Date.now());
-
-      console.log(agenda);
 
       const result = await agenda.save().catch(error => {
         console.error('Error while terminating agenda');
@@ -132,8 +130,6 @@ export const adminListener = (io: Server, socket: Socket): void => {
       }
 
       agenda.status = AgendaStatus.PROGRESS;
-
-      console.log(agenda);
 
       const result = await agenda.save().catch(error => {
         console.error('Error while starting agenda');
