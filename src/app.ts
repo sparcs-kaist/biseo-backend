@@ -32,6 +32,11 @@ redisClient.del('accessors', (err: string, _: string) => {
     console.log(err);
   }
 });
+redisClient.del('memberStates', (err: string, _: string) => {
+  if (err) {
+    console.log(err);
+  }
+});
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

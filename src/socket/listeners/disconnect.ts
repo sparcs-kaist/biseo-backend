@@ -28,6 +28,7 @@ export const disconnectListener = (io: Server, socket: Socket): void => {
         return;
 
       const members = await getConnectedMembers();
+      await redisClient.hdel('memberStates', username); // 해당 유저를 memberStates에서 아예 삭제
       socket.broadcast.emit('chat:members', members); // 접속자가 변경되었으므로 전체 유저에게 변경된 접속자를 보내줌
       socket.broadcast.emit('chat:out', username); // 전체 유저에게 누가 나갔는지 보내줌
     } catch (error) {
