@@ -19,16 +19,19 @@ export default (httpServer: http.Server): void => {
   io.on('connection', socket => {
     const { sparcs_id, isAdmin } = socket.user;
 
-
     const redisClient = redis.getConnection();
     (async () => {
       try {
-        const ctUser: string = await redisClient.hget('accessors', username);
+        const ctUser: string = await redisClient.hget('accessors', sparcs_id);
         if (ctUser == null || ctUser == '0') {
-          redisClient.hset('accessors', username, '1');
+          redisClient.hset('accessors', sparcs_id, '1');
           socket.broadcast.emit('chat:enter', sparcs_id); // broadcast the user's entrance
         } else {
-          redisClient.hset('accessors', username, String(parseInt(ctUser) + 1));
+          redisClient.hset(
+            'accessors',
+            sparcs_id,
+            String(parseInt(ctUser) + 1)
+          );
         }
         const members = await getConnectedMembers();
         socket.emit('chat:members', members); // send list of members to new user
@@ -37,8 +40,7 @@ export default (httpServer: http.Server): void => {
       }
     })();
 
-    socket.emit('chat:name', username); // send username to new user
-
+    socket.emit('chat:name', sparcs_id); // send sparcs_id to new user
 
     // listen for chats
     chatListener(io, socket);
