@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { MemberState } from '@/common/enums';
 import { redis } from '@/database/redis-instance';
 
 export const turnState = async (req: Request, res: Response): Promise<void> => {
@@ -12,7 +13,8 @@ export const turnState = async (req: Request, res: Response): Promise<void> => {
     });
     return;
   }
-  const newState = state === 'online' ? 'offline' : 'online';
+  const newState =
+    state === MemberState.ONLINE ? MemberState.OFFLINE : MemberState.ONLINE;
   await redisClient.hset('memberStates', sparcs_id, newState);
 
   res.json({ sparcs_id: sparcs_id, state: newState });
@@ -36,7 +38,7 @@ export const getOnlineMembers = async (
 
     const ans: string[] = await asyncFilter(keys, async (key: string) => {
       const state = await redisClient.hget('memberStates', key);
-      return state === 'online';
+      return state === MemberState.ONLINE;
     });
 
     res.json({ members: ans });
@@ -67,7 +69,7 @@ export const getOfflineMembers = async (
 
     const ans: string[] = await asyncFilter(keys, async (key: string) => {
       const state = await redisClient.hget('memberStates', key);
-      return state === 'offline';
+      return state === MemberState.OFFLINE;
     });
 
     res.json({ members: ans });
