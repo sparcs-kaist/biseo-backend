@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { getConnectedMembers } from '@/socket/utils';
-import { redis } from '../../database/redis_instance';
+import { redis } from '@/database/redis-instance';
 
 /*
  * disconnectListener - register 'disconnect' event to socket

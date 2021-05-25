@@ -1,4 +1,4 @@
-import { redis } from '../database/redis_instance';
+import { redis } from '@/database/redis-instance';
 
 /*
  * getConnectedMembers - get member names that are currently connected to the server socket.

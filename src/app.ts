@@ -2,7 +2,7 @@ import connectRedis from 'connect-redis';
 import express from 'express';
 import { createServer } from 'http';
 import morgan from 'morgan';
-import { redis } from './database/redis_instance';
+import { redis } from './database/redis-instance';
 import session from 'express-session';
 import { corsMiddleware } from './middlewares';
 import routes from './routes';

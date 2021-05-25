@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { redis } from '../database/redis_instance';
+import { redis } from '@/database/redis-instance';
 
 export const turnState = async (req: Request, res: Response): Promise<void> => {
   const redisClient = redis.getConnection();

@@ -8,7 +8,7 @@ import {
 } from './listeners';
 import { authMiddleware } from './middlewares';
 import { getConnectedMembers } from './utils';
-import { redis } from '../database/redis_instance';
+import { redis } from '@/database/redis-instance';
 export default (httpServer: http.Server): void => {
   const io = socket(httpServer);
 
