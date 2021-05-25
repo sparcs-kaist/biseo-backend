@@ -26,13 +26,16 @@ export const getOnlineMembers = async (
   try {
     const keys: string[] = await redisClient.hkeys('memberStates');
 
-    const asyncFilter = async (arr: string[], predicate: any) =>
+    const asyncFilter = async (
+      arr: string[],
+      predicate: (key: string) => Promise<boolean>
+    ) =>
       Promise.all(arr.map(predicate)).then(results =>
         arr.filter((_v, index) => results[index])
       );
 
     const ans: string[] = await asyncFilter(keys, async (key: string) => {
-      const state: string = await redisClient.hget('memberStates', key);
+      const state = await redisClient.hget('memberStates', key);
       return state === 'online';
     });
 
@@ -52,15 +55,18 @@ export const getOfflineMembers = async (
   const redisClient = redis.getConnection();
 
   try {
-    const keys: string[] = await redisClient.hkeys('memberStates');
+    const keys = await redisClient.hkeys('memberStates');
 
-    const asyncFilter = async (arr: string[], predicate: any) =>
+    const asyncFilter = async (
+      arr: string[],
+      predicate: (key: string) => Promise<boolean>
+    ) =>
       Promise.all(arr.map(predicate)).then(results =>
         arr.filter((_v, index) => results[index])
       );
 
     const ans: string[] = await asyncFilter(keys, async (key: string) => {
-      const state: string = await redisClient.hget('memberStates', key);
+      const state = await redisClient.hget('memberStates', key);
       return state === 'offline';
     });
 

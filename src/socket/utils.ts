@@ -9,14 +9,17 @@ export const getConnectedMembers = async (): Promise<string[]> => {
   try {
     const keys: string[] = await redisClient.hkeys('accessors');
 
-    const asyncFilter = async (arr: string[], predicate: any) =>
+    const asyncFilter = async (
+      arr: string[],
+      predicate: (key: string) => Promise<boolean>
+    ) =>
       Promise.all(arr.map(predicate)).then(results =>
         arr.filter((_v, index) => results[index])
       );
 
     const ans: string[] = await asyncFilter(keys, async (key: string) => {
-      const ctUser: number = await redisClient.hget('accessors', key);
-      return ctUser > 0;
+      const ctUser = await redisClient.hget('accessors', key);
+      return ctUser !== null && parseInt(ctUser) > 0;
     });
 
     return ans;
