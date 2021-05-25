@@ -1,14 +1,12 @@
 import ioRedis from 'ioredis';
 
 class Redis {
-  connected: boolean;
-  client: any;
+  client: ioRedis.Redis | null;
   constructor() {
-    this.connected = false;
     this.client = null;
   }
   getConnection() {
-    if (this.connected) return this.client;
+    if (this.client !== null) return this.client;
     const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
     const REDIS_HOST = process.env.REDIS_HOST ?? 'localhost';
     this.client = new ioRedis({
