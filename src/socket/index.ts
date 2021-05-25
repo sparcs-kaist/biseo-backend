@@ -38,7 +38,7 @@ export default (httpServer: http.Server): void => {
         const members = await getConnectedMembers();
         socket.emit('chat:members', members); // send list of members to new user
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     })();
 

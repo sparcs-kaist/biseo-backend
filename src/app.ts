@@ -29,12 +29,12 @@ app.use(
 );
 redisClient.del('accessors', (err, _) => {
   if (err) {
-    console.log(err);
+    console.error(err);
   }
 });
 redisClient.del('memberStates', (err, _) => {
   if (err) {
-    console.log(err);
+    console.error(err);
   }
 });
 

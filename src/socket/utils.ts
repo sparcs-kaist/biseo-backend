@@ -24,7 +24,7 @@ export const getConnectedMembers = async (): Promise<string[]> => {
 
     return ans;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return [];
   }
 };
