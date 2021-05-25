@@ -1,11 +1,14 @@
 import { Schema, model } from 'mongoose';
 import { MongoDocument } from '@/common/types';
+import { AgendaStatus } from '@/common/enums';
 
 export interface BaseAgenda {
-  expires: Date;
   title: string;
   content: string;
   subtitle: string;
+  status: AgendaStatus;
+  createDate: Date;
+  expires: Date;
   choices: string[];
   votesCountMap: Map<string, number>;
 }
@@ -15,10 +18,6 @@ export type AgendaDocument = MongoDocument<BaseAgenda>;
 // agenda === 안건
 const agendaSchema = new Schema(
   {
-    expires: {
-      type: Date,
-      required: true,
-    },
     title: {
       type: String,
       required: true,
@@ -33,6 +32,20 @@ const agendaSchema = new Schema(
     },
     choices: {
       type: [String],
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: [AgendaStatus.PREPARE, AgendaStatus.PROGRESS],
+      default: AgendaStatus.PREPARE,
+      required: true,
+    },
+    createDate: {
+      type: Date,
+      required: true,
+    },
+    expires: {
+      type: Date,
       required: true,
     },
     /**

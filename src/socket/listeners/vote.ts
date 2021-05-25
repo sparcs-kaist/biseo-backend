@@ -2,6 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { startSession } from 'mongoose';
 import { SuccessStatusResponse } from '@/common/types';
 import Agenda from '@/models/agenda';
+import { AgendaStatus } from '@/common/enums';
 import Vote from '@/models/vote';
 
 interface AgendaVotePayload {
@@ -25,7 +26,11 @@ export const voteListener = (io: Server, socket: Socket): void => {
         await Vote.create({ agendaId, uid, username, choice });
 
         const agenda = await Agenda.findOne({ _id: agendaId });
-        if (agenda === null || !agenda.votesCountMap.has(choice))
+        if (
+          agenda === null ||
+          !agenda.votesCountMap.has(choice) ||
+          agenda.status !== AgendaStatus.PROGRESS
+        )
           throw new Error(`Invalid Choice: ${choice} is not a votable choice`);
 
         // increment votesCountMap count
