@@ -27,12 +27,12 @@ app.use(
     cookie: { maxAge: 60000 },
   })
 );
-redisClient.del('accessors', (err: string, _: string) => {
+redisClient.del('accessors', (err, _) => {
   if (err) {
     console.log(err);
   }
 });
-redisClient.del('memberStates', (err: string, _: string) => {
+redisClient.del('memberStates', (err, _) => {
   if (err) {
     console.log(err);
   }
