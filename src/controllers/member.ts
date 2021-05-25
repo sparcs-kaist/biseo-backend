@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import { MemberState } from '@/common/enums';
 import { redis } from '@/database/redis-instance';
 
-export const turnState = async (req: Request, res: Response): Promise<void> => {
+export const toggleState = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const redisClient = redis.getConnection();
   const sparcs_id = req.user.sparcs_id;
 

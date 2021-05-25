@@ -3,7 +3,8 @@ import * as member from '@/controllers/member';
 
 const router = express.Router();
 
-router.post('/turn-state', member.turnState);
-router.get('/online-members', member.getOnlineMembers);
-router.get('/offline-members', member.getOfflineMembers);
+router.post('/toggle', member.toggleState);
+router.get('/online', member.getOnlineMembers);
+router.get('/offline', member.getOfflineMembers);
+
 export default router;
