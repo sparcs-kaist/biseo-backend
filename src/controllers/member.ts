@@ -6,13 +6,13 @@ export const turnState = async (req: Request, res: Response): Promise<void> => {
   const sparcs_id = req.user.sparcs_id;
 
   const state = await redisClient.hget('memberStates', sparcs_id);
-  if (state == null) {
+  if (state === null) {
     res.status(404).json({
       error: 'invalid sparcs_id',
     });
     return;
   }
-  const newState = state == 'online' ? 'offline' : 'online';
+  const newState = state === 'online' ? 'offline' : 'online';
   await redisClient.hset('memberStates', sparcs_id, newState);
 
   res.json({ sparcs_id: sparcs_id, state: newState });
@@ -33,7 +33,7 @@ export const getOnlineMembers = async (
 
     const ans: string[] = await asyncFilter(keys, async (key: string) => {
       const state: string = await redisClient.hget('memberStates', key);
-      return state == 'online';
+      return state === 'online';
     });
 
     res.json({ members: ans });
@@ -61,7 +61,7 @@ export const getOfflineMembers = async (
 
     const ans: string[] = await asyncFilter(keys, async (key: string) => {
       const state: string = await redisClient.hget('memberStates', key);
-      return state == 'offline';
+      return state === 'offline';
     });
 
     res.json({ members: ans });

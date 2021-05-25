@@ -12,8 +12,8 @@ export const disconnectListener = (io: Server, socket: Socket): void => {
 
   socket.on('disconnect', async () => {
     try {
-      const ctUser: string = await redisClient.hget('accessors', username);
-      if (ctUser == null || ctUser == '0')
+      const ctUser = await redisClient.hget('accessors', username);
+      if (ctUser === null || ctUser === '0')
         // something's wrong
         return;
 

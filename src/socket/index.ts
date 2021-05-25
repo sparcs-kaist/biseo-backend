@@ -22,8 +22,8 @@ export default (httpServer: http.Server): void => {
     const redisClient = redis.getConnection();
     (async () => {
       try {
-        const ctUser: string = await redisClient.hget('accessors', sparcs_id);
-        if (ctUser == null || ctUser == '0') {
+        const ctUser = await redisClient.hget('accessors', sparcs_id);
+        if (ctUser === null || ctUser === '0') {
           redisClient.hset('accessors', sparcs_id, '1');
           redisClient.hset('memberStates', sparcs_id, 'online');
           socket.broadcast.emit('chat:enter', sparcs_id); // broadcast the user's entrance
