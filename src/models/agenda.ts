@@ -36,8 +36,8 @@ const agendaSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['prepare', 'progress'],
-      default: 'prepare',
+      enum: [AgendaStatus.PREPARE, AgendaStatus.PROGRESS],
+      default: AgendaStatus.PREPARE,
       required: true,
     },
     createDate: {
