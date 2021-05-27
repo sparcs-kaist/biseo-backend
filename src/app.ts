@@ -2,7 +2,7 @@ import connectRedis from 'connect-redis';
 import express from 'express';
 import { createServer } from 'http';
 import morgan from 'morgan';
-import Redis from 'ioredis';
+import { redis } from './database/redis-instance';
 import session from 'express-session';
 import { corsMiddleware } from './middlewares';
 import routes from './routes';
@@ -10,14 +10,8 @@ import attachSocket from './socket';
 
 // initialize and run http server
 const app = express();
-
 const RedisStore = connectRedis(session);
-const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
-const REDIS_HOST = process.env.REDIS_HOST ?? 'localhost';
-const redisClient = new Redis({
-  port: REDIS_PORT,
-  host: REDIS_HOST,
-});
+const redisClient = redis.getConnection();
 
 if (process.env.NODE_ENV === 'development') app.use(corsMiddleware);
 
@@ -33,6 +27,17 @@ app.use(
     cookie: { maxAge: 60000 },
   })
 );
+redisClient.del('accessors', (err, _) => {
+  if (err) {
+    console.error(err);
+  }
+});
+redisClient.del('memberStates', (err, _) => {
+  if (err) {
+    console.error(err);
+  }
+});
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/api', routes);

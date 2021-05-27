@@ -8,8 +8,8 @@ import {
 } from './listeners';
 import { authMiddleware } from './middlewares';
 import { getConnectedMembers } from './utils';
-import { accessors } from './mock/accessors';
-
+import { redis } from '@/database/redis-instance';
+import { MemberState } from '@/common/enums';
 export default (httpServer: http.Server): void => {
   const io = socket(httpServer);
 
@@ -20,19 +20,29 @@ export default (httpServer: http.Server): void => {
   io.on('connection', socket => {
     const { sparcs_id, isAdmin } = socket.user;
 
-    const isNewUser = !(sparcs_id in accessors) || accessors[sparcs_id] === 0;
-    const members = getConnectedMembers(accessors);
+    const redisClient = redis.getConnection();
+    (async () => {
+      try {
+        const ctUser = await redisClient.hget('accessors', sparcs_id);
+        if (ctUser === null || ctUser === '0') {
+          redisClient.hset('accessors', sparcs_id, '1');
+          redisClient.hset('memberStates', sparcs_id, MemberState.ONLINE);
+          socket.broadcast.emit('chat:enter', sparcs_id); // broadcast the user's entrance
+        } else {
+          redisClient.hset(
+            'accessors',
+            sparcs_id,
+            String(parseInt(ctUser) + 1)
+          );
+        }
+        const members = await getConnectedMembers();
+        socket.emit('chat:members', members); // send list of members to new user
+      } catch (error) {
+        console.error(error);
+      }
+    })();
 
-    if (isNewUser) {
-      accessors[sparcs_id] = 1;
-      members.push(sparcs_id);
-      socket.broadcast.emit('chat:enter', sparcs_id); // broadcast the user's entrance
-    } else {
-      accessors[sparcs_id] += 1;
-    }
-
-    socket.emit('chat:members', members); // send list of members to new user
-    socket.emit('chat:name', sparcs_id); // send username to new user
+    socket.emit('chat:name', sparcs_id); // send sparcs_id to new user
 
     // listen for chats
     chatListener(io, socket);
