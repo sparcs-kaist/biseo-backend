@@ -1,13 +1,15 @@
 import { Server, Socket } from 'socket.io';
 import { SuccessStatusResponse } from '@/common/types';
+import { AgendaStatus } from '@/common/enums';
 import Agenda, { BaseAgenda } from '@/models/agenda';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
-  'title' | 'content' | 'subtitle' | 'choices'
+  'title' | 'content' | 'subtitle' | 'choices' | 'status'
 >;
 
 type AdminCreateCallback = (response: SuccessStatusResponse) => void;
+type AdminTerminateCallback = (response: SuccessStatusResponse) => void;
 
 /*
  * adminListener - register 'admin:create' event to socket
@@ -25,8 +27,8 @@ export const adminListener = (io: Server, socket: Socket): void => {
     async (payload: AdminCreatePayload, callback: AdminCreateCallback) => {
       // payload has 4 fields. title, content, subtitle, choices
       const currentTime = Date.now();
-      // agenda lasts for 3 minutes. this value is arbitrary and temporary
-      const validDuration = 3 * 60 * 1000;
+      // agenda lasts for 3 hours. this value is arbitrary and temporary
+      const validDuration = 3 * 60 * 60 * 1000;
 
       // all choices are initialized with a vote count of 0
       const votesCountMap = new Map(payload.choices.map(choice => [choice, 0]));
@@ -34,6 +36,8 @@ export const adminListener = (io: Server, socket: Socket): void => {
       const newAgenda = new Agenda({
         ...payload,
         votesCountMap,
+        status: AgendaStatus.PREPARE,
+        createDate: new Date(Date.now()),
         expires: new Date(currentTime + validDuration),
       });
 
@@ -47,14 +51,117 @@ export const adminListener = (io: Server, socket: Socket): void => {
         return;
       }
 
-      const { _id, title, content, subtitle, expires, choices } = result;
+      const {
+        _id,
+        title,
+        content,
+        subtitle,
+        status,
+        expires,
+        choices,
+      } = result;
       io.emit('agenda:created', {
         _id,
         title,
         content,
         subtitle,
         choices,
+        status,
         expires,
+      });
+      callback({ success: true });
+    }
+  );
+
+  socket.on(
+    'admin:terminates',
+    async (payload: string, callback: AdminTerminateCallback) => {
+      const agenda = await Agenda.findById(payload);
+      if (agenda === null || agenda.status !== AgendaStatus.PROGRESS) {
+        callback({ success: false });
+        return;
+      }
+
+      agenda.expires = new Date(Date.now());
+
+      const result = await agenda.save().catch(error => {
+        console.error('Error while terminating agenda');
+        callback({ success: false, message: error.message });
+      });
+
+      if (!result) {
+        callback({ success: false });
+        return;
+      }
+
+      const {
+        _id,
+        title,
+        content,
+        subtitle,
+        status,
+        expires,
+        choices,
+        createDate,
+        votesCountMap,
+      } = result;
+      io.emit('agenda:terminated', {
+        _id,
+        title,
+        content,
+        subtitle,
+        choices,
+        status,
+        expires,
+        createDate,
+        votesCountMap,
+      });
+      callback({ success: true });
+    }
+  );
+
+  socket.on(
+    'admin:start',
+    async (payload: string, callback: AdminCreateCallback) => {
+      const agenda = await Agenda.findById(payload);
+      if (agenda === null || agenda.status !== AgendaStatus.PREPARE) {
+        callback({ success: false });
+        return;
+      }
+
+      agenda.status = AgendaStatus.PROGRESS;
+
+      const result = await agenda.save().catch(error => {
+        console.error('Error while starting agenda');
+        callback({ success: false, message: error.message });
+      });
+
+      if (!result) {
+        callback({ success: false });
+        return;
+      }
+
+      const {
+        _id,
+        title,
+        content,
+        subtitle,
+        status,
+        expires,
+        choices,
+        createDate,
+        votesCountMap,
+      } = result;
+      io.emit('agenda:started', {
+        _id,
+        title,
+        content,
+        subtitle,
+        choices,
+        status,
+        expires,
+        createDate,
+        votesCountMap,
       });
       callback({ success: true });
     }
