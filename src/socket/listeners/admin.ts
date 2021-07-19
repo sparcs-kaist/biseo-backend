@@ -9,8 +9,14 @@ type AdminCreatePayload = Pick<
   'title' | 'content' | 'subtitle' | 'choices' | 'status'
 >;
 
+type AdminEditPayload = Pick<
+  BaseAgenda,
+  'title' | 'content' | 'subtitle' | 'choices' | 'status'
+>;
+
 type AdminCreateCallback = (response: SuccessStatusResponse) => void;
 type AdminTerminateCallback = (response: SuccessStatusResponse) => void;
+type AdminEditCallback = (response: SuccessStatusResponse) => void;
 
 /*
  * adminListener - register 'admin:create' event to socket
@@ -158,6 +164,60 @@ export const adminListener = (io: Server, socket: Socket): void => {
         votesCountMap,
       } = result;
       io.emit('agenda:started', {
+        _id,
+        title,
+        content,
+        subtitle,
+        choices,
+        status,
+        expires,
+        createDate,
+        votesCountMap,
+      });
+      callback({ success: true });
+    }
+  );
+
+  socket.on(
+    'admin:edit',
+    async (
+      agendaId: string,
+      payload: AdminEditPayload,
+      callback: AdminEditCallback
+    ) => {
+      const agenda = await Agenda.findById(agendaId);
+      if (agenda === null || agenda.status !== AgendaStatus.PREPARE) {
+        callback({ success: false });
+        return;
+      }
+
+      agenda.title = payload.title;
+      agenda.content = payload.content;
+      agenda.subtitle = payload.subtitle;
+      agenda.choices = payload.choices;
+
+      const result = await agenda.save().catch(error => {
+        console.error('Error while starting agenda');
+        callback({ success: false, message: error.message });
+      });
+
+      if (!result) {
+        callback({ success: false });
+        return;
+      }
+
+      const {
+        _id,
+        title,
+        content,
+        subtitle,
+        status,
+        expires,
+        choices,
+        createDate,
+        votesCountMap,
+      } = result;
+      io.emit('agenda:edited', {
         _id,
         title,
         content,
