@@ -14,7 +14,11 @@ export interface BaseAgenda {
   participants: string[];
 }
 
-export type AgendaDocument = MongoDocument<BaseAgenda>;
+interface AgendaExtended extends BaseAgenda, Document {
+  checkStatus: () => AgendaStatus;
+}
+
+export type AgendaDocument = MongoDocument<AgendaExtended>;
 
 // agenda === 안건
 const agendaSchema = new Schema(
@@ -69,5 +73,14 @@ const agendaSchema = new Schema(
     collection: 'agendas',
   }
 );
+
+agendaSchema.methods.checkStatus = function () {
+  const status = this.status;
+  const isExpired = Date.now() > Date.parse(this.expires.toISOString());
+  if (isExpired) {
+    return AgendaStatus.TERMINATE;
+  }
+  return status;
+};
 
 export default model<AgendaDocument>('Agenda', agendaSchema);

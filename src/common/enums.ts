@@ -5,4 +5,5 @@ export enum MemberState {
 export enum AgendaStatus {
   PREPARE = 'prepare',
   PROGRESS = 'progress',
+  TERMINATE = 'terminate',
 }

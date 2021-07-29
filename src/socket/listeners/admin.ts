@@ -9,14 +9,7 @@ type AdminCreatePayload = Pick<
   'title' | 'content' | 'subtitle' | 'choices' | 'status'
 >;
 
-type AdminEditPayload = Pick<
-  BaseAgenda,
-  'title' | 'content' | 'subtitle' | 'choices' | 'status'
->;
-
-type AdminCreateCallback = (response: SuccessStatusResponse) => void;
-type AdminTerminateCallback = (response: SuccessStatusResponse) => void;
-type AdminEditCallback = (response: SuccessStatusResponse) => void;
+type AdminAgendaCallback = (response: SuccessStatusResponse) => void;
 
 /*
  * adminListener - register 'admin:create' event to socket
@@ -31,9 +24,7 @@ type AdminEditCallback = (response: SuccessStatusResponse) => void;
 export const adminListener = (io: Server, socket: Socket): void => {
   socket.on(
     'admin:create',
-    async (payload: AdminCreatePayload, callback: AdminCreateCallback) => {
-      const redisClient = redis.getConnection();
-
+    async (payload: AdminCreatePayload, callback: AdminAgendaCallback) => {
       // payload has 4 fields. title, content, subtitle, choices
       const currentTime = Date.now();
       // agenda lasts for 3 hours. this value is arbitrary and temporary
@@ -86,9 +77,10 @@ export const adminListener = (io: Server, socket: Socket): void => {
 
   socket.on(
     'admin:terminates',
-    async (payload: string, callback: AdminTerminateCallback) => {
+    async (payload: string, callback: AdminAgendaCallback) => {
       const agenda = await Agenda.findById(payload);
-      if (agenda === null || agenda.status !== AgendaStatus.PROGRESS) {
+
+      if (agenda === null || agenda.checkStatus() !== AgendaStatus.PROGRESS) {
         callback({ success: false });
         return;
       }
@@ -133,9 +125,10 @@ export const adminListener = (io: Server, socket: Socket): void => {
 
   socket.on(
     'admin:start',
-    async (payload: string, callback: AdminCreateCallback) => {
+    async (payload: string, callback: AdminAgendaCallback) => {
       const agenda = await Agenda.findById(payload);
-      if (agenda === null || agenda.status !== AgendaStatus.PREPARE) {
+
+      if (agenda === null || agenda.checkStatus() !== AgendaStatus.PREPARE) {
         callback({ success: false });
         return;
       }
@@ -182,11 +175,12 @@ export const adminListener = (io: Server, socket: Socket): void => {
     'admin:edit',
     async (
       agendaId: string,
-      payload: AdminEditPayload,
-      callback: AdminEditCallback
+      payload: AdminCreatePayload,
+      callback: AdminAgendaCallback
     ) => {
       const agenda = await Agenda.findById(agendaId);
-      if (agenda === null || agenda.status !== AgendaStatus.PREPARE) {
+
+      if (agenda === null || agenda.checkStatus() !== AgendaStatus.PREPARE) {
         callback({ success: false });
         return;
       }
@@ -228,6 +222,34 @@ export const adminListener = (io: Server, socket: Socket): void => {
         createDate,
         votesCountMap,
       });
+      callback({ success: true });
+    }
+  );
+
+  socket.on(
+    'admin:delete',
+    async (payload: string, callback: AdminAgendaCallback) => {
+      const agenda = await Agenda.findById(payload);
+
+      if (agenda === null || agenda.checkStatus() !== AgendaStatus.TERMINATE) {
+        callback({ success: false });
+        return;
+      }
+
+      const result = await Agenda.deleteOne({ _id: payload }, error => {
+        if (error) {
+          console.error('Error while deleting agenda');
+          callback({ success: false, message: error.message });
+        }
+      });
+
+      if (!result.ok) {
+        console.log(result);
+        callback({ success: false });
+        return;
+      }
+
+      io.emit('agenda:deleted', payload);
       callback({ success: true });
     }
   );
