@@ -2,6 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { SuccessStatusResponse } from '@/common/types';
 import { AgendaStatus } from '@/common/enums';
 import Agenda, { BaseAgenda } from '@/models/agenda';
+import { redis } from '@/database/redis-instance';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
@@ -25,6 +26,8 @@ export const adminListener = (io: Server, socket: Socket): void => {
   socket.on(
     'admin:create',
     async (payload: AdminCreatePayload, callback: AdminCreateCallback) => {
+      const redisClient = redis.getConnection();
+
       // payload has 4 fields. title, content, subtitle, choices
       const currentTime = Date.now();
       // agenda lasts for 3 hours. this value is arbitrary and temporary
@@ -32,10 +35,12 @@ export const adminListener = (io: Server, socket: Socket): void => {
 
       // all choices are initialized with a vote count of 0
       const votesCountMap = new Map(payload.choices.map(choice => [choice, 0]));
+      const participants = await redisClient.hkeys('accessors');
 
       const newAgenda = new Agenda({
         ...payload,
         votesCountMap,
+        participants,
         status: AgendaStatus.PREPARE,
         createDate: new Date(Date.now()),
         expires: new Date(currentTime + validDuration),
