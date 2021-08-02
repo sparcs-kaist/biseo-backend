@@ -11,6 +11,7 @@ export interface BaseAgenda {
   expires: Date;
   choices: string[];
   votesCountMap: Map<string, number>;
+  participants: string[];
 }
 
 export type AgendaDocument = MongoDocument<BaseAgenda>;
@@ -57,6 +58,10 @@ const agendaSchema = new Schema(
     votesCountMap: {
       type: Map,
       of: Number,
+      required: true,
+    },
+    participants: {
+      type: [String], // array of uids
       required: true,
     },
   },
