@@ -13,11 +13,11 @@ export const getAgendas = async (
 
   const agendaIds = agendas.map(({ _id }) => _id);
 
-  const votes: {
-    // eslint-disable-next-line
-    _id: any;
-    voters: { username: string; choice: string; uid: string }[];
-  }[] = await Vote.aggregate([
+  type Voter = { username: string; choice: string; uid: string };
+  // eslint-disable-next-line
+  type VoteAggregate = { _id: any; voters: Voter[] };
+
+  const votes: VoteAggregate[] = await Vote.aggregate([
     { $match: { agendaId: { $in: agendaIds } } },
     {
       $group: {
