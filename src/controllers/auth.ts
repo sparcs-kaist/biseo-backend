@@ -53,5 +53,12 @@ export const loginCallback = async (
     process.env.TOKEN_SECRET as string
   );
 
-  res.status(200).json({ token });
+  // `sparcs_id` field does not exist when the account is
+  // a test account, and test accounts are important
+  const sparcsID = user.sparcs_id ?? user.uid.slice(0, 10);
+  const ssoUID = user.uid;
+
+  const userInfo = { sparcsID, ssoUID };
+
+  res.status(200).json({ token, user: userInfo });
 };
