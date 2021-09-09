@@ -25,6 +25,8 @@ export const adminListener = (io: Server, socket: Socket): void => {
   socket.on(
     'admin:create',
     async (payload: AdminCreatePayload, callback: AdminAgendaCallback) => {
+      const redisClient = redis.getConnection();
+
       // payload has 4 fields. title, content, subtitle, choices
       const currentTime = Date.now();
       // agenda lasts for 3 hours. this value is arbitrary and temporary
