@@ -24,6 +24,7 @@ export const authMiddleware = (
     socket.user = userInfo;
     next();
   } catch (err) {
-    throw new Error('Invalid Token: error while verifying token');
+    const error = new Error('authentication_error');
+    next(error);
   }
 };
