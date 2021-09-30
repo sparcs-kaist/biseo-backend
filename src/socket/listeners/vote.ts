@@ -33,6 +33,9 @@ export const voteListener = (io: Server, socket: Socket): void => {
         )
           throw new Error(`Invalid Choice: ${choice} is not a votable choice`);
 
+        if (!agenda.participants.includes(username))
+          throw new Error('You are not registered user for this vote.');
+
         // increment votesCountMap count
         agenda.votesCountMap.set(
           choice,
