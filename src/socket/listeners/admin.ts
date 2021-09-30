@@ -9,8 +9,7 @@ type AdminCreatePayload = Pick<
   'title' | 'content' | 'subtitle' | 'choices' | 'status'
 >;
 
-type AdminCreateCallback = (response: SuccessStatusResponse) => void;
-type AdminTerminateCallback = (response: SuccessStatusResponse) => void;
+type AdminAgendaCallback = (response: SuccessStatusResponse) => void;
 
 /*
  * adminListener - register 'admin:create' event to socket
@@ -25,7 +24,7 @@ type AdminTerminateCallback = (response: SuccessStatusResponse) => void;
 export const adminListener = (io: Server, socket: Socket): void => {
   socket.on(
     'admin:create',
-    async (payload: AdminCreatePayload, callback: AdminCreateCallback) => {
+    async (payload: AdminCreatePayload, callback: AdminAgendaCallback) => {
       const redisClient = redis.getConnection();
 
       // payload has 4 fields. title, content, subtitle, choices
@@ -80,9 +79,10 @@ export const adminListener = (io: Server, socket: Socket): void => {
 
   socket.on(
     'admin:terminates',
-    async (payload: string, callback: AdminTerminateCallback) => {
+    async (payload: string, callback: AdminAgendaCallback) => {
       const agenda = await Agenda.findById(payload);
-      if (agenda === null || agenda.status !== AgendaStatus.PROGRESS) {
+
+      if (agenda === null || agenda.checkStatus() !== AgendaStatus.PROGRESS) {
         callback({ success: false });
         return;
       }
@@ -127,9 +127,10 @@ export const adminListener = (io: Server, socket: Socket): void => {
 
   socket.on(
     'admin:start',
-    async (payload: string, callback: AdminCreateCallback) => {
+    async (payload: string, callback: AdminAgendaCallback) => {
       const agenda = await Agenda.findById(payload);
-      if (agenda === null || agenda.status !== AgendaStatus.PREPARE) {
+
+      if (agenda === null || agenda.checkStatus() !== AgendaStatus.PREPARE) {
         callback({ success: false });
         return;
       }
@@ -168,6 +169,89 @@ export const adminListener = (io: Server, socket: Socket): void => {
         createDate,
         votesCountMap,
       });
+      callback({ success: true });
+    }
+  );
+
+  socket.on(
+    'admin:edit',
+    async (
+      agendaId: string,
+      payload: AdminCreatePayload,
+      callback: AdminAgendaCallback
+    ) => {
+      const agenda = await Agenda.findById(agendaId);
+
+      if (agenda === null || agenda.checkStatus() !== AgendaStatus.PREPARE) {
+        callback({ success: false });
+        return;
+      }
+
+      agenda.title = payload.title;
+      agenda.content = payload.content;
+      agenda.subtitle = payload.subtitle;
+      agenda.choices = payload.choices;
+
+      const result = await agenda.save().catch(error => {
+        console.error('Error while starting agenda');
+        callback({ success: false, message: error.message });
+      });
+
+      if (!result) {
+        callback({ success: false });
+        return;
+      }
+
+      const {
+        _id,
+        title,
+        content,
+        subtitle,
+        status,
+        expires,
+        choices,
+        createDate,
+        votesCountMap,
+      } = result;
+      io.emit('agenda:edited', {
+        _id,
+        title,
+        content,
+        subtitle,
+        choices,
+        status,
+        expires,
+        createDate,
+        votesCountMap,
+      });
+      callback({ success: true });
+    }
+  );
+
+  socket.on(
+    'admin:delete',
+    async (payload: string, callback: AdminAgendaCallback) => {
+      const agenda = await Agenda.findById(payload);
+
+      if (agenda === null || agenda.checkStatus() !== AgendaStatus.TERMINATE) {
+        callback({ success: false });
+        return;
+      }
+
+      const result = await Agenda.deleteOne({ _id: payload }, error => {
+        if (error) {
+          console.error('Error while deleting agenda');
+          callback({ success: false, message: error.message });
+        }
+      });
+
+      if (!result.ok) {
+        console.log(result);
+        callback({ success: false });
+        return;
+      }
+
+      io.emit('agenda:deleted', payload);
       callback({ success: true });
     }
   );
