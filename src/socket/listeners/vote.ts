@@ -95,7 +95,7 @@ export const voteListener = (io: Server, socket: Socket): void => {
           },
         });
       } else {
-        callback({ success: false, message: 'No permission' });
+        callback({ success: false, payload: 'No permission' });
       }
     }
   );
