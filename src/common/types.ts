@@ -30,5 +30,6 @@ export type UserInfo = TokenPayload;
 
 export interface SuccessStatusResponse {
   success: boolean;
+  payload?: any;
   message?: string;
 }
