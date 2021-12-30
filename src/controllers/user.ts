@@ -3,8 +3,8 @@ import User, { UserDocument } from '@/models/user';
 import { getOnlineMembers } from '../socket/utils';
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
-  const preset: number = parseInt(req.params.preset) - 1;
-  if (preset < 0 || preset > 2) {
+  const preset: number = parseInt(req.query['preset'] as string) - 1;
+  if (isNaN(preset) || preset < 0 || preset > 2) {
     res.status(401);
     res.send('Preset is invalid value.');
     return;
