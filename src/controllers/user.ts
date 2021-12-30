@@ -70,3 +70,11 @@ export const updateUsers = async (
     res.end('success');
   });
 };
+
+export const deleteUsers = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  await User.deleteMany({});
+  res.end('success');
+};
