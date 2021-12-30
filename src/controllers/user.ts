@@ -13,11 +13,11 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
 
   const onlineMembers: string[] = await getOnlineMembers();
   const userDocuments: UserDocument[] = await User.find({}).lean();
-  const users: User[] = userDocuments.map(e => {
+  const users: User[] = userDocuments.map(user => {
     return {
-      sparcsId: e.sparcsId,
-      isVotable: e.isVotable[preset],
-      isOnline: e.sparcsId in onlineMembers,
+      sparcsId: user.sparcsId,
+      isVotable: user.isVotable[preset],
+      isOnline: onlineMembers.includes(user.sparcsId),
     };
   });
   res.json({ users: users });
