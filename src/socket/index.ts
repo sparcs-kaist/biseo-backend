@@ -10,7 +10,7 @@ import { authMiddleware } from './middlewares';
 import { getConnectedMembers } from './utils';
 import { redis } from '@/database/redis-instance';
 import { MemberState } from '@/common/enums';
-import User from '@/models/user';
+import User, { UserDocument } from '@/models/user';
 
 export default (httpServer: http.Server): void => {
   const io = socket(httpServer);
@@ -32,11 +32,16 @@ export default (httpServer: http.Server): void => {
     redisClient.hset('accessors', sparcs_id, accessCount + 1);
 
     // register user in DB
-    await User.create({
+    const user: UserDocument | null = await User.findOne({
       sparcsId: sparcs_id,
-      uid: uid,
-      isVotable: [false, false, false],
     });
+    if (user === null) {
+      await User.create({
+        sparcsId: sparcs_id,
+        uid: uid,
+        isVotable: [false, false, false],
+      });
+    }
 
     const members = await getConnectedMembers();
     socket.emit('chat:members', members); // send list of members to new user
