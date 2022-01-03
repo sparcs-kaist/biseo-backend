@@ -7,20 +7,20 @@ export const toggleState = async (
   res: Response
 ): Promise<void> => {
   const redisClient = redis.getConnection();
-  const sparcs_id = req.user.sparcs_id;
+  const { uid, sparcs_id } = req.user;
 
-  const state = await redisClient.hget('memberStates', sparcs_id);
+  const state = await redisClient.hget('memberStates', uid);
   if (state === null) {
     res.status(404).json({
-      error: 'invalid sparcs_id',
+      error: 'invalid uid',
     });
     return;
   }
   const newState =
     state === MemberState.ONLINE ? MemberState.OFFLINE : MemberState.ONLINE;
-  await redisClient.hset('memberStates', sparcs_id, newState);
+  await redisClient.hset('memberStates', uid, newState);
 
-  res.json({ sparcs_id: sparcs_id, state: newState });
+  res.json({ uid: uid, sparcs_id: sparcs_id, state: newState });
 };
 
 export const getOnlineMembers = async (
