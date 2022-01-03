@@ -37,7 +37,7 @@ export const voteListener = (io: Server, socket: Socket): void => {
         )
           throw new Error(`Invalid Choice: ${choice} is not a votable choice`);
 
-        if (!agenda.participants.includes(username))
+        if (!agenda.participants.includes(uid))
           throw new Error('You are not registered user for this vote.');
 
         // increment votesCountMap count
@@ -79,10 +79,10 @@ export const voteListener = (io: Server, socket: Socket): void => {
         const { participants } = agenda;
 
         const voteInfo = await Vote.find({ agendaId: agenda._id });
-        const voterNames = voteInfo.map(({ username }) => username);
+        const voterUids = voteInfo.map(({ uid }) => uid);
 
         const pplWhoDidNotVote = participants.filter(
-          name => !voterNames.includes(name)
+          uid => !voterUids.includes(uid)
         );
 
         callback({
