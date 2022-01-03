@@ -21,15 +21,15 @@ export default (httpServer: http.Server): void => {
   // main logic of listener socket
   io.on('connection', async socket => {
     const redisClient = redis.getConnection();
-    const { sparcs_id, isAdmin, uid } = socket.user;
+    const { uid, sparcs_id, isAdmin } = socket.user;
 
-    const accessors = await redisClient.hget('accessors', sparcs_id);
+    const accessors = await redisClient.hget('accessors', uid);
     const accessCount = accessors !== null ? parseInt(accessors) : 0;
     if (accessCount === 0) {
-      redisClient.hset('memberStates', sparcs_id, MemberState.ONLINE);
+      redisClient.hset('memberStates', uid, MemberState.ONLINE);
       socket.broadcast.emit('chat:enter', sparcs_id); // broadcast the user's entrance
     }
-    redisClient.hset('accessors', sparcs_id, accessCount + 1);
+    redisClient.hset('accessors', uid, accessCount + 1);
 
     // register user in DB
     const user: UserDocument | null = await User.findOne({
