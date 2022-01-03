@@ -9,12 +9,18 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
     res.send('Preset is invalid value.');
     return;
   }
-  type User = { sparcsId: string; isVotable: boolean; isOnline: boolean };
+  type User = {
+    uid: string;
+    sparcsId: string;
+    isVotable: boolean;
+    isOnline: boolean;
+  };
 
   const onlineMembers: string[] = await getOnlineMembers();
   const userDocuments: UserDocument[] = await User.find({}).lean();
   const users: User[] = userDocuments.map(user => {
     return {
+      uid: user.uid,
       sparcsId: user.sparcsId,
       isVotable: user.isVotable[preset],
       isOnline: onlineMembers.includes(user.sparcsId),
@@ -34,7 +40,7 @@ export const updateUsers = async (
     return;
   }
 
-  type User = { sparcsId: string; isVotable: boolean };
+  type User = { uid: string; isVotable: boolean };
   const users: User[] = req.body['users'];
   if (users === undefined) {
     res.status(401);
@@ -43,25 +49,25 @@ export const updateUsers = async (
   }
 
   users.forEach(async user => {
-    const sparcsId = user.sparcsId;
+    const uid = user.uid;
     const isVotable = user.isVotable;
 
     switch (preset) {
       case 0:
         await User.updateOne(
-          { sparcsId: sparcsId },
+          { uid: uid },
           { $set: { 'isVotable.0': isVotable } }
         );
         break;
       case 1:
         await User.updateOne(
-          { sparcsId: sparcsId },
+          { uid: uid },
           { $set: { 'isVotable.1': isVotable } }
         );
         break;
       case 2:
         await User.updateOne(
-          { sparcsId: sparcsId },
+          { uid: uid },
           { $set: { 'isVotable.2': isVotable } }
         );
         break;
