@@ -1,17 +1,25 @@
 import { Request, Response } from 'express';
-import Agenda, { AgendaDocument } from '@/models/agenda';
+import Agenda, { AgendaDocument, checkStatus } from '@/models/agenda';
 import Vote from '@/models/vote';
+import { AgendaStatus } from '@/common/enums';
 
 export const getAgendas = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  const { isAdmin } = req.user;
+
   const agendas: AgendaDocument[] = await Agenda.find({})
-    .limit(10)
     .sort({ expires: -1 })
     .lean();
 
-  const agendaIds = agendas.map(({ _id }) => _id);
+  const filteredAgendas = isAdmin
+    ? agendas
+    : agendas.filter(agenda => {
+        agenda !== null && checkStatus(agenda) !== AgendaStatus.PREPARE;
+      });
+
+  const agendaIds = filteredAgendas.map(({ _id }) => _id);
 
   type Voter = { username: string; choice: string; uid: string };
   // eslint-disable-next-line
@@ -58,10 +66,14 @@ export const getAgendas = async (
 };
 
 export const getAgenda = async (req: Request, res: Response): Promise<void> => {
-  const { sparcs_id } = req.user;
+  const { sparcs_id, isAdmin } = req.user;
   const _id = req.params.id;
 
   const agenda = await Agenda.findOne({ _id }).lean();
+
+  if (!isAdmin && checkStatus(agenda) == AgendaStatus.PREPARE) {
+    res.json({});
+  }
 
   const userVote = await Vote.findOne({
     agenda: _id,

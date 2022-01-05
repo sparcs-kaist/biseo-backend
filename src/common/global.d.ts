@@ -8,7 +8,7 @@ declare module 'socket.io' {
 
 declare module 'express-serve-static-core' {
   interface Request {
-    user: SSOUser;
+    user: UserInfo;
     token: string;
   }
 }
