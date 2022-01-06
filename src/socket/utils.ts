@@ -55,7 +55,6 @@ export const getOnlineMembers = async (): Promise<string[]> => {
       );
     });
 
-    console.log(ans);
     return ans;
   } catch (err) {
     console.error(err);
