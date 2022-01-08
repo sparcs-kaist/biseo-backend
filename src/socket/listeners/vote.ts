@@ -4,6 +4,7 @@ import { SuccessStatusResponse } from '@/common/types';
 import Agenda, { AgendaDocument } from '@/models/agenda';
 import { AgendaStatus } from '@/common/enums';
 import Vote from '@/models/vote';
+import User from '@/models/user';
 
 interface AgendaVotePayload {
   agendaId: string;
@@ -81,8 +82,18 @@ export const voteListener = (io: Server, socket: Socket): void => {
         const voteInfo = await Vote.find({ agendaId: agenda._id });
         const voterUids = voteInfo.map(({ uid }) => uid);
 
-        const pplWhoDidNotVote = participants.filter(
+        let pplWhoDidNotVote = participants.filter(
           uid => !voterUids.includes(uid)
+        );
+        pplWhoDidNotVote = await Promise.all(
+          pplWhoDidNotVote.map(async uid => {
+            const user = await User.findOne({ uid });
+            if (user === null) {
+              return uid;
+            } else {
+              return user.sparcsId;
+            }
+          })
         );
 
         callback({

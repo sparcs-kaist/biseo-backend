@@ -2,11 +2,10 @@ import { Server, Socket } from 'socket.io';
 import { SuccessStatusResponse } from '@/common/types';
 import { AgendaStatus } from '@/common/enums';
 import Agenda, { BaseAgenda } from '@/models/agenda';
-import { getOnlineMembers } from '../utils';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
-  'title' | 'content' | 'subtitle' | 'choices' | 'status'
+  'title' | 'content' | 'subtitle' | 'choices' | 'status' | 'participants'
 >;
 
 type AdminAgendaCallback = (response: SuccessStatusResponse) => void;
@@ -32,12 +31,10 @@ export const adminListener = (io: Server, socket: Socket): void => {
 
       // all choices are initialized with a vote count of 0
       const votesCountMap = new Map(payload.choices.map(choice => [choice, 0]));
-      const participants = await getOnlineMembers();
 
       const newAgenda = new Agenda({
         ...payload,
         votesCountMap,
-        participants,
         status: AgendaStatus.PREPARE,
         createDate: new Date(Date.now()),
         expires: new Date(currentTime + validDuration),
