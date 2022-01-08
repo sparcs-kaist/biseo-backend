@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
-import { SSOUser } from '@/common/types';
+import { UserInfo } from '@/common/types';
 
 export const authMiddleware: RequestHandler = (req, res, next) => {
   const authHeader = req.headers['x-access-token'];
@@ -29,7 +29,7 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
       return;
     }
 
-    req.user = decoded as SSOUser;
+    req.user = decoded as UserInfo;
     req.token = token;
     next();
   });

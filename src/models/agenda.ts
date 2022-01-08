@@ -83,4 +83,13 @@ agendaSchema.methods.checkStatus = function () {
   return status;
 };
 
+export const checkStatus = function (agenda: AgendaDocument) {
+  const status = agenda.status;
+  const isExpired = Date.now() > Date.parse(agenda.expires.toISOString());
+  if (isExpired) {
+    return AgendaStatus.TERMINATE;
+  }
+  return status;
+};
+
 export default model<AgendaDocument>('Agenda', agendaSchema);
