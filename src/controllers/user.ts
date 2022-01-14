@@ -4,7 +4,7 @@ import { getOnlineMembers } from '../socket/utils';
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   const preset: number = parseInt(req.query['preset'] as string) - 1;
-  if (isNaN(preset) || preset < 0 || preset > 2) {
+  if (isNaN(preset) || preset < -1 || preset > 2) {
     res.status(401);
     res.send('Preset is invalid value.');
     return;
@@ -22,7 +22,7 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
     return {
       uid: user.uid,
       sparcsId: user.sparcsId,
-      isVotable: user.isVotable[preset],
+      isVotable: preset !== -1 && user.isVotable[preset],
       isOnline: onlineMembers.includes(user.uid),
     };
   });
