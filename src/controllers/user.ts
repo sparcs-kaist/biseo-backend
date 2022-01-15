@@ -5,7 +5,7 @@ import { getOnlineMembers } from '../socket/utils';
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   const preset: number = parseInt(req.query['preset'] as string) - 1;
   if (isNaN(preset) || preset < 0 || preset > 2) {
-    res.status(401);
+    res.status(400);
     res.send('Preset is invalid value.');
     return;
   }
@@ -35,7 +35,7 @@ export const updateUsers = async (
 ): Promise<void> => {
   const preset: number = parseInt(req.query['preset'] as string) - 1;
   if (isNaN(preset) || preset < 0 || preset > 2) {
-    res.status(401);
+    res.status(400);
     res.send('Preset is invalid value.');
     return;
   }
@@ -43,7 +43,7 @@ export const updateUsers = async (
   type User = { uid: string; isVotable: boolean };
   const users: User[] = req.body['users'];
   if (users === undefined) {
-    res.status(401);
+    res.status(400);
     res.send('Request body is invalid.');
     return;
   }
