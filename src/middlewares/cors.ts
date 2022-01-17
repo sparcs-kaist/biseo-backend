@@ -11,7 +11,7 @@ export const corsMiddleware: RequestHandler = (req, res, next) => {
     'PATCH',
     'DELETE',
   ]);
-  res.set('Access-Control-Allow-Headers', 'x-access-token');
+  res.set('Access-Control-Allow-Headers', ['x-access-token', 'content-type']);
 
   if (req.method === 'OPTIONS') res.sendStatus(200);
   else next();
