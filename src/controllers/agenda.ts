@@ -15,9 +15,12 @@ export const getAgendas = async (
 
   const filteredAgendas = isAdmin
     ? agendas
-    : agendas.filter(agenda => {
-        agenda !== null && checkStatus(agenda) !== AgendaStatus.PREPARE;
-      });
+    : agendas.filter(
+        agenda =>
+          agenda !== null &&
+          checkStatus(agenda) !== AgendaStatus.PREPARE &&
+          agenda.participants.includes(req.user.uid)
+      );
 
   const agendaIds = filteredAgendas.map(({ _id }) => _id);
 
@@ -37,7 +40,7 @@ export const getAgendas = async (
     },
   ]);
 
-  const agendasResponse = agendas.map(agenda => {
+  const agendasResponse = filteredAgendas.map(agenda => {
     const voteInfo = votes.find(({ _id }) => _id.equals(agenda._id)) ?? {
       _id: '',
       voters: [],

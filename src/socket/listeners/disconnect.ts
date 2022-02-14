@@ -6,12 +6,20 @@ import { redis } from '@/database/redis-instance';
  * disconnectListener - register 'disconnect' event to socket
  *   upon disconnection, modify the `accessors` variable and send appropriate events
  */
-export const disconnectListener = (io: Server, socket: Socket): void => {
-  const { uid, sparcs_id } = socket.user;
+export const disconnectListener = (
+  io: Server,
+  socket: Socket,
+  socketIds: { [key: string]: Set<string> },
+  adminSocketIds: Set<string>
+): void => {
+  const { uid, sparcs_id, isAdmin } = socket.user;
   const redisClient = redis.getConnection();
 
   socket.on('disconnect', async () => {
     try {
+      socketIds[uid].delete(socket.id);
+      if (isAdmin) adminSocketIds.delete(socket.id);
+
       const ctUser = await redisClient.hget('accessors', uid);
       if (ctUser === null || ctUser === '0')
         // something's wrong
