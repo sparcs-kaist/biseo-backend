@@ -20,7 +20,12 @@ type AdminAgendaCallback = (response: SuccessStatusResponse) => void;
  *   this event listener creates a new agenda and broadcasts the created agenda to all
  *   client sockets.
  */
-export const adminListener = (io: Server, socket: Socket): void => {
+export const adminListener = (
+  io: Server,
+  socket: Socket,
+  socketIds: { [key: string]: Set<string> },
+  adminSocketIds: Set<string>
+): void => {
   socket.on(
     'admin:create',
     async (payload: AdminCreatePayload, callback: AdminAgendaCallback) => {
@@ -59,7 +64,8 @@ export const adminListener = (io: Server, socket: Socket): void => {
         expires,
         choices,
       } = result;
-      io.emit('agenda:created', {
+
+      emitAdmin(adminSocketIds, io, 'agenda:created', {
         _id,
         title,
         content,
@@ -68,6 +74,7 @@ export const adminListener = (io: Server, socket: Socket): void => {
         status,
         expires,
       });
+
       callback({ success: true });
     }
   );
@@ -105,17 +112,26 @@ export const adminListener = (io: Server, socket: Socket): void => {
         createDate,
         votesCountMap,
       } = result;
-      io.emit('agenda:terminated', {
-        _id,
-        title,
-        content,
-        subtitle,
-        choices,
-        status,
-        expires,
-        createDate,
-        votesCountMap,
-      });
+
+      emitParticipantsAndAdmin(
+        agenda.participants,
+        socketIds,
+        adminSocketIds,
+        io,
+        'agenda:terminated',
+        {
+          _id,
+          title,
+          content,
+          subtitle,
+          choices,
+          status,
+          expires,
+          createDate,
+          votesCountMap,
+        }
+      );
+
       callback({ success: true });
     }
   );
@@ -153,17 +169,26 @@ export const adminListener = (io: Server, socket: Socket): void => {
         createDate,
         votesCountMap,
       } = result;
-      io.emit('agenda:started', {
-        _id,
-        title,
-        content,
-        subtitle,
-        choices,
-        status,
-        expires,
-        createDate,
-        votesCountMap,
-      });
+
+      emitParticipantsAndAdmin(
+        agenda.participants,
+        socketIds,
+        adminSocketIds,
+        io,
+        'agenda:started',
+        {
+          _id,
+          title,
+          content,
+          subtitle,
+          choices,
+          status,
+          expires,
+          createDate,
+          votesCountMap,
+        }
+      );
+
       callback({ success: true });
     }
   );
@@ -208,17 +233,26 @@ export const adminListener = (io: Server, socket: Socket): void => {
         createDate,
         votesCountMap,
       } = result;
-      io.emit('agenda:edited', {
-        _id,
-        title,
-        content,
-        subtitle,
-        choices,
-        status,
-        expires,
-        createDate,
-        votesCountMap,
-      });
+
+      emitParticipantsAndAdmin(
+        agenda.participants,
+        socketIds,
+        adminSocketIds,
+        io,
+        'agenda:edited',
+        {
+          _id,
+          title,
+          content,
+          subtitle,
+          choices,
+          status,
+          expires,
+          createDate,
+          votesCountMap,
+        }
+      );
+
       callback({ success: true });
     }
   );
@@ -246,8 +280,46 @@ export const adminListener = (io: Server, socket: Socket): void => {
         return;
       }
 
-      io.emit('agenda:deleted', payload);
+      emitParticipantsAndAdmin(
+        agenda.participants,
+        socketIds,
+        adminSocketIds,
+        io,
+        'agenda:deleted',
+        payload
+      );
+
       callback({ success: true });
     }
   );
 };
+
+function emitParticipantsAndAdmin(
+  participants: string[],
+  socketIds: { [key: string]: Set<string> },
+  adminSocketIds: Set<string>,
+  io: Server,
+  message: string,
+  payload: any
+) {
+  participants.map(participant => {
+    if (participant in socketIds) {
+      socketIds[participant].forEach(socket_id => {
+        if (!adminSocketIds.has(socket_id))
+          io.to(socket_id).emit(message, payload);
+      });
+    }
+  });
+  emitAdmin(adminSocketIds, io, message, payload);
+}
+
+function emitAdmin(
+  adminSocketIds: Set<string>,
+  io: Server,
+  message: string,
+  payload: any
+) {
+  adminSocketIds.forEach(socket_id => {
+    io.to(socket_id).emit(message, payload);
+  });
+}

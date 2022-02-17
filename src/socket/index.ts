@@ -14,15 +14,27 @@ import User, { UserDocument } from '@/models/user';
 
 export default (httpServer: http.Server): void => {
   const io = socket(httpServer);
+  const socketIds: { [key: string]: Set<string> } = {};
+  const adminSocketIds: Set<string> = new Set();
 
   // attach auth related properties to socket
   io.use(authMiddleware);
 
   // main logic of listener socket
   io.on('connection', async socket => {
-    const redisClient = redis.getConnection();
     const { uid, sparcs_id, isAdmin } = socket.user;
+    if (uid in socketIds) {
+      socketIds[uid].add(socket.id);
+    } else {
+      socketIds[uid] = new Set();
+      socketIds[uid].add(socket.id);
+    }
 
+    if (isAdmin) {
+      adminSocketIds.add(socket.id);
+    }
+
+    const redisClient = redis.getConnection();
     const accessors = await redisClient.hget('accessors', uid);
     const accessCount = accessors !== null ? parseInt(accessors) : 0;
     if (accessCount === 0) {
@@ -55,9 +67,9 @@ export default (httpServer: http.Server): void => {
     voteListener(io, socket);
 
     // listen to disconnect event
-    disconnectListener(io, socket);
+    disconnectListener(io, socket, socketIds, adminSocketIds);
 
     // only attach admin listener to admins
-    if (isAdmin) adminListener(io, socket);
+    if (isAdmin) adminListener(io, socket, socketIds, adminSocketIds);
   });
 };
