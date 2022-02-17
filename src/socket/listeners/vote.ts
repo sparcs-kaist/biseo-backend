@@ -27,10 +27,6 @@ export const voteListener = (io: Server, socket: Socket): void => {
       const session = await startSession();
       const agenda = await Agenda.findOne({ _id: agendaId });
       try {
-        session.startTransaction();
-
-        await Vote.create({ agendaId, uid, username, choice });
-
         if (
           agenda === null ||
           !agenda.votesCountMap.has(choice) ||
@@ -40,6 +36,14 @@ export const voteListener = (io: Server, socket: Socket): void => {
 
         if (!agenda.participants.includes(uid))
           throw new Error('You are not registered user for this vote.');
+
+        // prevent multiple voting
+        const voteInfo = await Vote.find({ agendaId: agenda._id });
+        const voterUids = voteInfo.map(({ uid }) => uid);
+        if (voterUids.includes(uid)) throw new Error('You already voted');
+
+        session.startTransaction();
+        await Vote.create({ agendaId, uid, username, choice });
 
         // increment votesCountMap count
         agenda.votesCountMap.set(
