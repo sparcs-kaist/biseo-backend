@@ -31,28 +31,33 @@ export const getConnectedMembers = async (): Promise<string[]> => {
 };
 
 /*
- * getOnlineMembers - get online member names that are currently connected to the server socket and online.
+ * getOnlineMembers - get online or vacant member names that are currently connected to the server socket and online.
  *  this function returns an array of strings
  */
-export const getOnlineMembers = async (): Promise<string[]> => {
+export const getOnlineVacantMembers = async (): Promise<
+  {
+    uid: string;
+    state: MemberState;
+  }[]
+> => {
   const redisClient = redis.getConnection();
   try {
     const keys: string[] = await redisClient.hkeys('accessors');
 
     const asyncFilter = async (
       arr: string[],
-      predicate: (key: string) => Promise<boolean>
+      predicate: (key: string) => Promise<{ uid: string; state: MemberState }>
     ) =>
       Promise.all(arr.map(predicate)).then(results =>
-        arr.filter((_v, index) => results[index])
+        results.filter(r => r.state !== MemberState.OFFLINE)
       );
 
-    const ans: string[] = await asyncFilter(keys, async (key: string) => {
-      const ctUser = await redisClient.hget('accessors', key);
-      const stUser = await redisClient.hget('memberStates', key);
-      return (
-        ctUser !== null && parseInt(ctUser) > 0 && stUser === MemberState.ONLINE
-      );
+    const ans = await asyncFilter(keys, async (key: string) => {
+      const stUser = (await redisClient.hget(
+        'memberStates',
+        key
+      )) as MemberState;
+      return { uid: key, state: stUser };
     });
 
     return ans;
