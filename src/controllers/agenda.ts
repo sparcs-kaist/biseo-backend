@@ -46,7 +46,7 @@ export const getAgendas = async (
       voters: [],
     };
 
-    const { participants } = agenda;
+    const { participants, ...userAgenda } = agenda;
     const voterNames = voteInfo.voters.map(({ username }) => username);
 
     const pplWhoDidNotVote = participants.filter(
@@ -57,12 +57,19 @@ export const getAgendas = async (
     );
     const choiceOfThisUser = voteInfoOfThisUser?.choice ?? null;
 
-    return {
-      ...agenda,
-      participants,
-      pplWhoDidNotVote,
-      userChoice: choiceOfThisUser,
-    };
+    console.log(userAgenda);
+    if (isAdmin)
+      return {
+        ...agenda,
+        participants,
+        pplWhoDidNotVote,
+        userChoice: choiceOfThisUser,
+      };
+    else
+      return {
+        ...userAgenda,
+        userChoice: choiceOfThisUser,
+      };
   });
 
   res.json({ agendas: agendasResponse });
