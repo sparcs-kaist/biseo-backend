@@ -11,6 +11,7 @@ import { getConnectedMembers } from './utils';
 import { redis } from '@/database/redis-instance';
 import { MemberState } from '@/common/enums';
 import User, { UserDocument } from '@/models/user';
+import { vacantListener } from './listeners/vacant';
 
 export default (httpServer: http.Server): void => {
   const io = socket(httpServer);
@@ -68,6 +69,9 @@ export default (httpServer: http.Server): void => {
 
     // listen to disconnect event
     disconnectListener(io, socket, socketIds, adminSocketIds);
+
+    // listen to vacant event
+    vacantListener(io, socket);
 
     // only attach admin listener to admins
     if (isAdmin) adminListener(io, socket, socketIds, adminSocketIds);

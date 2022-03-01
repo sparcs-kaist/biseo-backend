@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User, { UserDocument } from '@/models/user';
-import { getOnlineMembers } from '../socket/utils';
+import { getOnlineVacantMembers } from '../socket/utils';
+import { MemberState } from '@/common/enums';
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   const preset: number = parseInt(req.query['preset'] as string) - 1;
@@ -13,17 +14,22 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
     uid: string;
     sparcsId: string;
     isVotable: boolean;
-    isOnline: boolean;
+    state: MemberState;
   };
 
-  const onlineMembers: string[] = await getOnlineMembers();
+  const onlineMemberState: {
+    uid: string;
+    state: MemberState;
+  }[] = await getOnlineVacantMembers();
   const userDocuments: UserDocument[] = await User.find({}).lean();
   const users: User[] = userDocuments.map(user => {
+    let _state = onlineMemberState.find(e => e.uid === user.uid)?.state;
+    if (_state === undefined) _state = MemberState.OFFLINE;
     return {
       uid: user.uid,
       sparcsId: user.sparcsId,
       isVotable: preset !== -1 && user.isVotable[preset],
-      isOnline: onlineMembers.includes(user.uid),
+      state: _state,
     };
   });
   res.json({ users: users });
