@@ -57,7 +57,6 @@ export const getAgendas = async (
     );
     const choiceOfThisUser = voteInfoOfThisUser?.choice ?? null;
 
-    console.log(userAgenda);
     if (isAdmin)
       return {
         ...agenda,

@@ -262,7 +262,7 @@ export const adminListener = (
     async (payload: string, callback: AdminAgendaCallback) => {
       const agenda = await Agenda.findById(payload);
 
-      if (agenda === null || agenda.checkStatus() !== AgendaStatus.TERMINATE) {
+      if (agenda === null || agenda.checkStatus() === AgendaStatus.PROGRESS) {
         callback({ success: false });
         return;
       }
