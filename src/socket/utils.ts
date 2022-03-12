@@ -31,7 +31,7 @@ export const getConnectedMembers = async (): Promise<string[]> => {
 };
 
 /*
- * getOnlineMembers - get online or vacant member names that are currently connected to the server socket and online.
+ * getOnlineVacantMembers - get online or vacant member names that are currently connected to the server socket and online.
  *  this function returns an array of strings
  */
 export const getOnlineVacantMembers = async (): Promise<

@@ -7,7 +7,6 @@ import {
   voteListener,
 } from './listeners';
 import { authMiddleware } from './middlewares';
-import { getConnectedMembers } from './utils';
 import { redis } from '@/database/redis-instance';
 import { MemberState } from '@/common/enums';
 import User, { UserDocument } from '@/models/user';
@@ -55,11 +54,6 @@ export default (httpServer: http.Server): void => {
         isVotable: [false, false, false],
       });
     }
-
-    const members = await getConnectedMembers();
-    socket.emit('chat:members', members); // send list of members to new user
-
-    socket.emit('chat:name', sparcs_id); // send sparcs_id to new user
 
     // listen for chats
     chatListener(io, socket);
