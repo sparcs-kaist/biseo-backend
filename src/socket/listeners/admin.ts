@@ -63,6 +63,7 @@ export const adminListener = (
         status,
         expires,
         choices,
+        participants,
       } = result;
 
       emitAdmin(adminSocketIds, io, 'agenda:created', {
@@ -73,6 +74,7 @@ export const adminListener = (
         choices,
         status,
         expires,
+        participants,
       });
 
       callback({ success: true });
@@ -211,6 +213,7 @@ export const adminListener = (
       agenda.content = payload.content;
       agenda.subtitle = payload.subtitle;
       agenda.choices = payload.choices;
+      agenda.participants = payload.participants;
 
       const result = await agenda.save().catch(error => {
         console.error('Error while starting agenda');
@@ -232,6 +235,7 @@ export const adminListener = (
         choices,
         createDate,
         votesCountMap,
+        participants,
       } = result;
 
       emitParticipantsAndAdmin(
@@ -250,6 +254,7 @@ export const adminListener = (
           expires,
           createDate,
           votesCountMap,
+          participants,
         }
       );
 
