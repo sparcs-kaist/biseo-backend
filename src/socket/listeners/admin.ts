@@ -113,6 +113,7 @@ export const adminListener = (
         choices,
         createDate,
         votesCountMap,
+        participants,
       } = result;
 
       emitParticipantsAndAdmin(
@@ -131,6 +132,7 @@ export const adminListener = (
           expires,
           createDate,
           votesCountMap,
+          participants,
         }
       );
 
@@ -170,6 +172,7 @@ export const adminListener = (
         choices,
         createDate,
         votesCountMap,
+        participants,
       } = result;
 
       emitParticipantsAndAdmin(
@@ -188,6 +191,7 @@ export const adminListener = (
           expires,
           createDate,
           votesCountMap,
+          participants,
         }
       );
 
