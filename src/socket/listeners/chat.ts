@@ -1,8 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import Chat from '@/models/chat';
 import User from '@/models/user';
-import { getOnlineVacantMembers } from '@/socket/utils';
-import { MemberState } from '@/common/enums';
+import IORedis from 'ioredis';
 
 /*
  * chat - register 'chat:message' event to socket
@@ -21,23 +20,23 @@ type messageType = {
   date: string;
 };
 
-export const chatListener = (io: Server, socket: Socket): void => {
+export const chatListener = (
+  io: Server,
+  socket: Socket,
+  redisClient: IORedis.Redis
+): void => {
   /* send list of members to new user */
   socket.on('chat:members', async () => {
-    const onlineMemberState: {
-      uid: string;
-      state: MemberState;
-    }[] = await getOnlineVacantMembers();
+    const keys: string[] = await redisClient.hkeys('memberStates');
     const _chatMemberState = await Promise.all(
-      onlineMemberState.map(async ms => {
-        const user = await User.findOne({ uid: ms.uid });
-        if (user === null) {
-          return { sparcsId: ms.uid, state: MemberState.ONLINE };
-        } else {
-          return { sparcsId: user.sparcsId, state: ms.state };
-        }
+      keys.map(async key => {
+        const memberState = await redisClient.hget('memberStates', key);
+        const user = await User.findOne({ uid: key });
+        if (user === null) return { sparcsId: key, state: memberState };
+        else return { sparcsId: user?.sparcsId, state: memberState };
       })
     );
+
     socket.emit('chat:members', _chatMemberState);
   });
 
