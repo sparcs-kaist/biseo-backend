@@ -56,7 +56,7 @@ export default (httpServer: http.Server): void => {
     }
 
     // listen for chats
-    chatListener(io, socket);
+    chatListener(io, socket, redisClient);
 
     // listen for votes
     voteListener(io, socket);
