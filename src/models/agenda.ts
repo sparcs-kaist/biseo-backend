@@ -10,7 +10,7 @@ export interface BaseAgenda {
   createDate: Date;
   expires: Date;
   choices: string[];
-  votesCountMap: Map<string, number>;
+  votesCountMap: Map<string, string[]>;
   participants: string[];
 }
 
@@ -61,7 +61,7 @@ const agendaSchema = new Schema(
      */
     votesCountMap: {
       type: Map,
-      of: Number,
+      of: [String],
       required: true,
     },
     participants: {
