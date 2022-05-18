@@ -48,7 +48,8 @@ export const voteListener = (io: Server, socket: Socket): void => {
         // increment votesCountMap count
         agenda.votesCountMap.set(
           choice,
-          (agenda.votesCountMap.get(choice) as number) + 1
+          // eslint-disable-next-line prettier/prettier
+          [...(agenda.votesCountMap.get(choice) as string[]), username]
         );
         await agenda.save();
 

@@ -35,7 +35,9 @@ export const adminListener = (
       const validDuration = 3 * 60 * 60 * 1000;
 
       // all choices are initialized with a vote count of 0
-      const votesCountMap = new Map(payload.choices.map(choice => [choice, 0]));
+      const votesCountMap = new Map(
+        payload.choices.map(choice => [choice, []])
+      );
 
       const newAgenda = new Agenda({
         ...payload,
