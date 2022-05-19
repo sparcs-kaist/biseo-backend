@@ -65,6 +65,7 @@ export const voteListener = (io: Server, socket: Socket): void => {
 
       io.emit('agenda:voted', {
         agendaId,
+        username,
       });
 
       callback({ success: true });
