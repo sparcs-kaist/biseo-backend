@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { signToken } from '@/utils/jwt';
 import client from '@/utils/sso';
 import Admin from '@/models/admin';
+import { UserInfo } from '@/common/types';
 
 export const authCheck = (req: Request, res: Response): void => {
   const tokenHeader = req.headers['x-access-token'];
@@ -23,6 +24,47 @@ export const authCheck = (req: Request, res: Response): void => {
     if (err) res.json({ success: false });
     else res.json({ success: true });
   });
+};
+
+export const authAdminCheck = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const tokenHeader = req.headers['x-access-token'];
+  if (typeof tokenHeader !== 'string') {
+    res.status(404).json({
+      error: 'Token not included in request!',
+    });
+    return;
+  }
+
+  const [_, token] = tokenHeader.split(' ');
+  if (token === undefined) {
+    res.json({ success: false });
+    return;
+  }
+
+  if (process.env.TOKEN_SECRET === undefined) {
+    res.status(500).json({
+      error: 'Token secret not initialized!',
+    });
+    return;
+  }
+
+  jwt.verify(
+    token,
+    process.env.TOKEN_SECRET as string,
+    async (err, decoded) => {
+      if (err) res.json({ success: false });
+      else {
+        const isAdmin = await Admin.exists({
+          username: (decoded as UserInfo).sparcs_id,
+        });
+        if (isAdmin) res.json({ success: true });
+        else res.json({ success: false });
+      }
+    }
+  );
 };
 
 export const login = (req: Request, res: Response): void => {
@@ -58,7 +100,7 @@ export const loginCallback = async (
   const sparcsID = user.sparcs_id ?? user.uid.slice(0, 10);
   const ssoUID = user.uid;
 
-  const userInfo = { sparcsID, ssoUID, isUserAdmin };
+  const userInfo = { sparcsID, ssoUID };
 
   res.status(200).json({ token, user: userInfo });
 };
