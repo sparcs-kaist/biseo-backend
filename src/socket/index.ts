@@ -23,11 +23,11 @@ export default (httpServer: http.Server): void => {
   // main logic of listener socket
   io.on('connection', async socket => {
     const { uid, sparcs_id, isAdmin } = socket.user;
-    if (uid in socketIds) {
-      socketIds[uid].add(socket.id);
+    if (sparcs_id in socketIds) {
+      socketIds[sparcs_id].add(socket.id);
     } else {
-      socketIds[uid] = new Set();
-      socketIds[uid].add(socket.id);
+      socketIds[sparcs_id] = new Set();
+      socketIds[sparcs_id].add(socket.id);
     }
 
     if (isAdmin) {

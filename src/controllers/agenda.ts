@@ -12,14 +12,15 @@ export const getAgendas = async (
   const agendas: AgendaDocument[] = await Agenda.find({})
     .sort({ expires: -1 })
     .lean();
-
+  const sparcsId =
+    req.user.sparcs_id === null ? req.user.uid : req.user.sparcs_id;
   const filteredAgendas = isAdmin
     ? agendas
     : agendas.filter(
         agenda =>
           agenda !== null &&
           checkStatus(agenda) !== AgendaStatus.PREPARE &&
-          agenda.participants.includes(req.user.uid)
+          agenda.participants.includes(sparcsId)
       );
 
   const agendaIds = filteredAgendas.map(({ _id }) => _id);

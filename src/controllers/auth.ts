@@ -88,6 +88,10 @@ export const loginCallback = async (
   }
 
   const user = await client.getUserInfo(code);
+  // `sparcs_id` field does not exist when the account is
+  // a test account, and test accounts are important
+  user.sparcs_id = user.sparcs_id ?? user.uid.slice(0, 10);
+
   const isUserAdmin = await Admin.exists({ username: user.sparcs_id });
   const token = signToken(
     user,
@@ -95,11 +99,8 @@ export const loginCallback = async (
     process.env.TOKEN_SECRET as string
   );
 
-  // `sparcs_id` field does not exist when the account is
-  // a test account, and test accounts are important
-  const sparcsID = user.sparcs_id ?? user.uid.slice(0, 10);
+  const sparcsID = user.sparcs_id;
   const ssoUID = user.uid;
-
   const userInfo = { sparcsID, ssoUID };
 
   res.status(200).json({ token, user: userInfo });

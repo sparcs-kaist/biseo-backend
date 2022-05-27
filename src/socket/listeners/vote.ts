@@ -34,7 +34,7 @@ export const voteListener = (io: Server, socket: Socket): void => {
         )
           throw new Error(`Invalid Choice: ${choice} is not a votable choice`);
 
-        if (!agenda.participants.includes(uid))
+        if (!agenda.participants.includes(username))
           throw new Error('You are not registered user for this vote.');
 
         // prevent multiple voting
@@ -86,16 +86,16 @@ export const voteListener = (io: Server, socket: Socket): void => {
         const { participants } = agenda;
 
         const voteInfo = await Vote.find({ agendaId: agenda._id });
-        const voterUids = voteInfo.map(({ uid }) => uid);
+        const voterUsername = voteInfo.map(({ username }) => username);
 
         let pplWhoDidNotVote = participants.filter(
-          uid => !voterUids.includes(uid)
+          sparcs_id => !voterUsername.includes(sparcs_id)
         );
         pplWhoDidNotVote = await Promise.all(
-          pplWhoDidNotVote.map(async uid => {
-            const user = await User.findOne({ uid });
+          pplWhoDidNotVote.map(async sparcs_id => {
+            const user = await User.findOne({ sparcs_id });
             if (user === null) {
-              return uid;
+              return sparcs_id;
             } else {
               return user.sparcsId;
             }
