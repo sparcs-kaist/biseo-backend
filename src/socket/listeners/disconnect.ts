@@ -16,7 +16,7 @@ export const disconnectListener = (
 
   socket.on('disconnect', async () => {
     try {
-      socketIds[uid].delete(socket.id);
+      socketIds[sparcs_id].delete(socket.id);
       if (isAdmin) adminSocketIds.delete(socket.id);
 
       const ctUser = await redisClient.hget('accessors', uid);

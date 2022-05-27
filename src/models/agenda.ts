@@ -65,7 +65,7 @@ const agendaSchema = new Schema(
       required: true,
     },
     participants: {
-      type: [String], // array of uids
+      type: [String], // array of sparcs_id
       required: true,
     },
   },

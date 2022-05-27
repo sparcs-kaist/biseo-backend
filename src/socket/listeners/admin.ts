@@ -286,7 +286,6 @@ export const adminListener = (
       });
 
       if (!result.ok) {
-        console.log(result);
         callback({ success: false });
         return;
       }
