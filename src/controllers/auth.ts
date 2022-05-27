@@ -100,8 +100,7 @@ export const loginCallback = async (
   );
 
   const sparcsID = user.sparcs_id;
-  const ssoUID = user.uid;
-  const userInfo = { sparcsID, ssoUID };
+  const userInfo = { sparcsID };
 
   res.status(200).json({ token, user: userInfo });
 };
