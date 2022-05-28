@@ -90,3 +90,22 @@ export const deleteUsers = async (
   await User.deleteMany({});
   res.end('success');
 };
+
+export const addUser = async (req: Request, res: Response): Promise<void> => {
+  const sparcsId = req.body['sparcsId'] as string;
+  await User.create({
+    sparcsId: sparcsId,
+    uid: '0',
+    isVotable: [false, false, false],
+  });
+  res.status(200);
+  res.json({
+    success: true,
+    user: {
+      sparcsId: sparcsId,
+      uid: '0',
+      isVotable: [false, false, false],
+      state: MemberState.OFFLINE,
+    },
+  });
+};
