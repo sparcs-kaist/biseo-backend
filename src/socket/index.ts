@@ -53,6 +53,8 @@ export default (httpServer: http.Server): void => {
         uid: uid,
         isVotable: [false, false, false],
       });
+    } else if (user.uid === '0') {
+      await User.updateOne({ sparcsId: user.sparcsId }, { $set: { uid: uid } });
     }
 
     // listen for chats
