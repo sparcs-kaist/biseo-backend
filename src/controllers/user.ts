@@ -93,6 +93,13 @@ export const deleteUsers = async (
 
 export const addUser = async (req: Request, res: Response): Promise<void> => {
   const sparcsId = req.body['sparcsId'] as string;
+  const checkExisted = await User.findOne({ sparcsId: sparcsId });
+  if (checkExisted !== null) {
+    res.status(400);
+    res.json({ success: false });
+    return;
+  }
+
   await User.create({
     sparcsId: sparcsId,
     uid: '0',
