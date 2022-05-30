@@ -32,7 +32,7 @@ export const adminListener = (
       // payload has 4 fields. title, content, subtitle, choices
       const currentTime = Date.now();
       // agenda lasts for 3 hours. this value is arbitrary and temporary
-      const validDuration = 3 * 60 * 60 * 1000;
+      const validDuration = 24 * 60 * 60 * 1000;
 
       // all choices are initialized with a vote count of 0
       const votesCountMap = new Map(
