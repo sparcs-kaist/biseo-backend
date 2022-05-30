@@ -46,7 +46,7 @@ export const updateUsers = async (
     return;
   }
 
-  type User = { uid: string; isVotable: boolean };
+  type User = { sparcsId: string; isVotable: boolean };
   const users: User[] = req.body['users'];
   if (users === undefined) {
     res.status(400);
@@ -55,25 +55,25 @@ export const updateUsers = async (
   }
 
   users.forEach(async user => {
-    const uid = user.uid;
+    const sparcsId = user.sparcsId;
     const isVotable = user.isVotable;
 
     switch (preset) {
       case 0:
         await User.updateOne(
-          { uid: uid },
+          { sparcsId: sparcsId },
           { $set: { 'isVotable.0': isVotable } }
         );
         break;
       case 1:
         await User.updateOne(
-          { uid: uid },
+          { sparcsId: sparcsId },
           { $set: { 'isVotable.1': isVotable } }
         );
         break;
       case 2:
         await User.updateOne(
-          { uid: uid },
+          { sparcsId: sparcsId },
           { $set: { 'isVotable.2': isVotable } }
         );
         break;
