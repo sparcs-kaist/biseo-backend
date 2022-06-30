@@ -7,6 +7,8 @@ import IORedis from 'ioredis';
  * chat - register 'chat:message' event to socket
  */
 
+const CHATMAXLENGTH = 500;
+
 export enum MessageEnum {
   NEW = 'new',
   MEMBERS = 'members',
@@ -41,6 +43,10 @@ export const chatListener = (
   });
 
   socket.on('chat:message', async (message: messageType) => {
+    if (message.message.length > CHATMAXLENGTH) {
+      message.message = message.message.substring(0, CHATMAXLENGTH);
+    }
+
     await Chat.create({
       type: MessageEnum.MESSAGE,
       message: message.message,
