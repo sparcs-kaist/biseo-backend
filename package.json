@@ -26,11 +26,14 @@
     "express-session": "^1.17.1",
     "ioredis": "^4.16.3",
     "jsonwebtoken": "^8.5.1",
+    "moment-timezone": "^0.5.34",
     "mongoose": "^5.10.15",
     "morgan": "^1.10.0",
     "querystring": "^0.2.0",
     "socket.io": "^2.4.1",
-    "tsconfig-paths": "^3.9.0"
+    "tsconfig-paths": "^3.9.0",
+    "winston": "^3.8.1",
+    "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
     "@types/connect-redis": "0.0.16",

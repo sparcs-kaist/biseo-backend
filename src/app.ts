@@ -7,15 +7,17 @@ import session from 'express-session';
 import { corsMiddleware } from './middlewares';
 import routes from './routes';
 import attachSocket from './socket';
+import logger from './utils/logger';
 
 // initialize and run http server
 const app = express();
 const RedisStore = connectRedis(session);
 const redisClient = redis.getConnection();
-
+const morganFormat =
+  process.env.NODE_ENV === 'development' ? 'dev' : 'combined';
 if (process.env.NODE_ENV === 'development') app.use(corsMiddleware);
 
-app.use(morgan('dev'));
+app.use(morgan(morganFormat, { stream: { write: msg => logger.info(msg) } }));
 app.use(
   session({
     resave: false,
