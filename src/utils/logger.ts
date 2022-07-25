@@ -1,19 +1,20 @@
 import { createLogger, format, transports } from 'winston';
 import winstonDaily from 'winston-daily-rotate-file';
+import moment from 'moment-timezone';
 
 const logDir = 'logs';
-const { combine, timestamp, printf } = format;
+const { combine, printf } = format;
 const logFormat = printf(info => {
   return `${info.timestamp} ${info.level}: ${info.message}`;
 });
 
+const timestamp = format((info, opts) => {
+  if (opts.tz) info.timestamp = moment().tz(opts.tz).format();
+  return info;
+});
+
 const logger = createLogger({
-  format: combine(
-    timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss',
-    }),
-    logFormat
-  ),
+  format: combine(timestamp({ tz: 'Asia/Seoul' }), logFormat),
   transports: [
     new winstonDaily({
       level: 'info',
