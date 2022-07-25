@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { MemberState } from '@/common/enums';
 import { redis } from '@/database/redis-instance';
+import { getErrorMessage } from '@/utils/error';
 
 export const toggleState = async (
   req: Request,
@@ -47,7 +48,7 @@ export const getOnlineMembers = async (
     res.json({ members: ans });
   } catch (error) {
     res.status(500).json({
-      error: error?.message,
+      error: getErrorMessage(error),
     });
     res.json({ error: error });
   }
@@ -78,7 +79,7 @@ export const getOfflineMembers = async (
     res.json({ members: ans });
   } catch (error) {
     res.status(500).json({
-      error: error?.message,
+      error: getErrorMessage(error),
     });
     res.json({ error: error });
   }

@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, LeanDocument } from 'mongoose';
 import { MongoDocument } from '@/common/types';
 import { AgendaStatus } from '@/common/enums';
 
@@ -21,7 +21,7 @@ interface AgendaExtended extends BaseAgenda, Document {
 export type AgendaDocument = MongoDocument<AgendaExtended>;
 
 // agenda === 안건
-const agendaSchema = new Schema(
+const agendaSchema: Schema<AgendaDocument> = new Schema(
   {
     title: {
       type: String,
@@ -83,7 +83,10 @@ agendaSchema.methods.checkStatus = function () {
   return status;
 };
 
-export const checkStatus = function (agenda: AgendaDocument) {
+export const checkStatus = function (
+  agenda: AgendaDocument | LeanDocument<AgendaDocument> | null
+): AgendaStatus {
+  if (agenda === null) return AgendaStatus.TERMINATE;
   const status = agenda.status;
   const isExpired = Date.now() > Date.parse(agenda.expires.toISOString());
   if (isExpired) {

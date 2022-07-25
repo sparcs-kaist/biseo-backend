@@ -1,10 +1,11 @@
 import { Server, Socket } from 'socket.io';
 import { startSession } from 'mongoose';
 import { SuccessStatusResponse } from '@/common/types';
-import Agenda, { AgendaDocument } from '@/models/agenda';
+import Agenda from '@/models/agenda';
 import { AgendaStatus } from '@/common/enums';
 import Vote from '@/models/vote';
 import User from '@/models/user';
+import { getErrorMessage } from '@/utils/error';
 
 interface AgendaVotePayload {
   agendaId: string;
@@ -59,7 +60,7 @@ export const voteListener = (io: Server, socket: Socket): void => {
         await session.abortTransaction();
         session.endSession();
 
-        callback({ success: false, message: error.message });
+        callback({ success: false, message: getErrorMessage(error) });
         return;
       }
 
