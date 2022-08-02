@@ -17,10 +17,6 @@ export const authMiddleware = (
       process.env.TOKEN_SECRET as string
     ) as TokenPayload;
 
-    // sparcs_id is null for SSO test accounts.
-    // in that case, assign a portion of uid to username
-    userInfo.sparcs_id = userInfo.sparcs_id ?? userInfo.uid.slice(0, 10);
-
     socket.user = userInfo;
     next();
   } catch (err) {

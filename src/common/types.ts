@@ -17,12 +17,10 @@ export interface SSOUser {
   kaist_info: string;
   kaist_info_time: string;
   sparcs_id: string;
+  ku_kname: string;
 }
 
-export type TokenPayload = Pick<
-  SSOUser,
-  'uid' | 'first_name' | 'last_name' | 'sparcs_id'
-> & {
+export type TokenPayload = Pick<SSOUser, 'uid' | 'sparcs_id' | 'ku_kname'> & {
   isAdmin: boolean;
 };
 

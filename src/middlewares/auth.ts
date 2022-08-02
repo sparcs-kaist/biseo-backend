@@ -3,14 +3,14 @@ import jwt from 'jsonwebtoken';
 import { UserInfo } from '@/common/types';
 
 export const authMiddleware: RequestHandler = (req, res, next) => {
-  const authHeader = req.headers['x-access-token'];
+  const accessTokenHeader = req.headers['x-access-token'];
 
-  if (typeof authHeader !== 'string')
+  if (typeof accessTokenHeader !== 'string')
     return res.status(403).json({
       error: 'Unauthorized. Please log in!',
     });
 
-  const [_, token] = authHeader.split(' ');
+  const [_, token] = accessTokenHeader.split(' ');
   if (token === undefined)
     return res.status(403).json({
       error: 'Unauthorized. Please log in!',
@@ -23,7 +23,7 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
 
   jwt.verify(token, process.env.TOKEN_SECRET, (error, decoded) => {
     if (error !== null || decoded === undefined) {
-      res.status(403).json({
+      res.status(401).json({
         error: error?.message,
       });
       return;

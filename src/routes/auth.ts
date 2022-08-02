@@ -7,5 +7,6 @@ router.get('/check', auth.authCheck);
 router.get('/check/admin', auth.authAdminCheck);
 router.post('/login', auth.login);
 router.get('/login/callback', auth.loginCallback);
+router.post('/refresh', auth.refresh);
 
 export default router;
