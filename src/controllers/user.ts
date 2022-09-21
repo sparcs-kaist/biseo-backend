@@ -126,7 +126,7 @@ export const changeName = async (
   res: Response
 ): Promise<void> => {
   const newId = req.body['newId'] as string;
-  const oldId = req.body['oldId'] as string;
+  const oldId = req.user.sparcs_id;
   const checkExisted = await User.findOne({ sparcsId: oldId });
   const checkRepeated = await User.findOne({ sparcsId: newId });
 
@@ -154,4 +154,6 @@ export const changeName = async (
       );
     }
   });
+
+  res.status(200).json({ success: true });
 };
