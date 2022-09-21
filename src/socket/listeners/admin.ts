@@ -324,11 +324,9 @@ export const adminListener = (
     }
   );
 
-  //////////독촉장 전송 시도
   socket.on(
     'admin:hurry',
     async (payload: string, callback: AdminAgendaCallback) => {
-      //payload로 Agenda ID 전송, 아직 투표하지 않은 User들에게 chat emit. 비공식적이기에 Back에는 저장 안함
       const agenda = await Agenda.findById(payload);
       if (agenda) {
         const voteInfo = await Vote.find({ agendaId: agenda.id });
@@ -356,7 +354,6 @@ export const adminListener = (
       }
     }
   );
-  //////////////////////////
 };
 
 function emitParticipantsAndAdmin(

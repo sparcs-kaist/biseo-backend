@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import User, { UserDocument } from '@/models/user';
 import { getOnlineVacantMembers } from '../socket/utils';
 import { MemberState } from '@/common/enums';
+import Vote from '@/models/vote';
+import Agenda from '@/models/agenda';
+import Admin from '@/models/admin';
+import Chat from '@/models/chat';
 
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   const preset: number = parseInt(req.query['preset'] as string) - 1;
@@ -114,5 +118,40 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
       isVotable: [false, false, false],
       state: MemberState.OFFLINE,
     },
+  });
+};
+
+export const changeName = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const newId = req.body['newId'] as string;
+  const oldId = req.body['oldId'] as string;
+  const checkExisted = await User.findOne({ sparcsId: oldId });
+  const checkRepeated = await User.findOne({ sparcsId: newId });
+
+  if (checkExisted === null || !checkRepeated === null) {
+    res.status(400);
+    res.json({ success: false });
+    return;
+  }
+
+  await User.updateOne({ sparcsId: oldId }, { sparcsId: newId });
+  await Chat.updateMany({ username: oldId }, { username: newId });
+  await Vote.updateMany({ username: oldId }, { username: newId });
+  await Admin.updateOne({ username: oldId }, { username: newId });
+
+  const agendas = await Agenda.find({});
+
+  agendas.forEach(async agendaDoc => {
+    if (agendaDoc.participants.includes(oldId)) {
+      const newParts = agendaDoc.participants.map(id =>
+        id === oldId ? newId : id
+      );
+      await Agenda.updateOne(
+        { _id: agendaDoc._id },
+        { participants: newParts }
+      );
+    }
   });
 };
