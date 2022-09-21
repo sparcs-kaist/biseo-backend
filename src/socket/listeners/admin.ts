@@ -2,11 +2,18 @@ import { Server, Socket } from 'socket.io';
 import { SuccessStatusResponse } from '@/common/types';
 import { AgendaStatus } from '@/common/enums';
 import Agenda, { BaseAgenda } from '@/models/agenda';
+import Chat, { MessageEnum } from '@/models/chat';
+import Vote from '@/models/vote';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
   'title' | 'content' | 'subtitle' | 'choices' | 'status' | 'participants'
 >;
+
+const currentTime = () => {
+  const offset = new Date().getTimezoneOffset() * 60000;
+  return new Date(Date.now() - offset).toISOString();
+};
 
 type AdminAgendaCallback = (response: SuccessStatusResponse) => void;
 
@@ -138,6 +145,13 @@ export const adminListener = (
         }
       );
 
+      await Chat.create({
+        type: MessageEnum.VOTEEND,
+        message: `새로운 투표 : ${agenda.title} 이(가) 종료되었습니다`,
+        username: ' ',
+        date: currentTime(),
+      });
+
       callback({ success: true });
     }
   );
@@ -196,6 +210,13 @@ export const adminListener = (
           participants,
         }
       );
+
+      await Chat.create({
+        type: MessageEnum.VOTESTART,
+        message: `새로운 투표 : ${agenda.title} 이(가) 시작되었습니다`,
+        username: ' ',
+        date: currentTime(),
+      });
 
       callback({ success: true });
     }
@@ -302,6 +323,40 @@ export const adminListener = (
       callback({ success: true });
     }
   );
+
+  //////////독촉장 전송 시도
+  socket.on(
+    'admin:hurry',
+    async (payload: string, callback: AdminAgendaCallback) => {
+      //payload로 Agenda ID 전송, 아직 투표하지 않은 User들에게 chat emit. 비공식적이기에 Back에는 저장 안함
+      const agenda = await Agenda.findById(payload);
+      if (agenda) {
+        const voteInfo = await Vote.find({ agendaId: agenda.id });
+        const voterNames = voteInfo.map(({ username }) => username);
+        let unvote: string[] = [];
+
+        agenda.participants.forEach(user => {
+          if (!voterNames.includes(user)) {
+            unvote = [user, ...unvote];
+          }
+        });
+
+        if (unvote.length === 0) return;
+
+        callback({ success: true });
+
+        emitParticipantsAndAdmin(
+          unvote,
+          socketIds,
+          adminSocketIds,
+          io,
+          'agenda:hurry',
+          agenda.title
+        );
+      }
+    }
+  );
+  //////////////////////////
 };
 
 function emitParticipantsAndAdmin(

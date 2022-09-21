@@ -6,6 +6,8 @@ export enum MessageEnum {
   MEMBERS = 'members',
   MESSAGE = 'message',
   OUT = 'out',
+  VOTESTART = 'votestart',
+  VOTEEND = 'voteend',
 }
 
 export interface BaseChat {
