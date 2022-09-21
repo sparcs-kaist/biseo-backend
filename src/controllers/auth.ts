@@ -130,14 +130,14 @@ export const loginCallback = async (
     return;
   }
 
-  const user = await client.getUserInfo(code);
+  const user = await client.getUserInfo(code); //gony
   // `sparcs_id` field does not exist when the account is
   // a test account, and test accounts are important
   user.sparcs_id = user.sparcs_id ?? user.uid.slice(0, 10);
 
   // register user in DB
   const userInDB: UserDocument = await User.findOne({
-    sparcsId: user.sparcs_id,
+    uid: user.uid,
   }).lean();
   if (userInDB === null) {
     await User.create({
@@ -150,6 +150,11 @@ export const loginCallback = async (
       { sparcsId: user.sparcsId },
       { $set: { uid: user.uid } }
     );
+  }
+
+  // 닉네임 변경 시 변경한 닉네임으로 적용
+  if (userInDB.sparcsId !== user.sparcs_id) {
+    user.sparcs_id = userInDB.sparcsId;
   }
 
   const isUserAdmin = await Admin.exists({ username: user.sparcs_id });
