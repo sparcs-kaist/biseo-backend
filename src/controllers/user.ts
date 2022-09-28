@@ -128,10 +128,15 @@ export const changeName = async (
   const newId = req.body['newId'] as string;
   const oldId = req.user.sparcs_id;
   const checkExisted = await User.findOne({ sparcsId: oldId });
+  if (checkExisted === null) {
+    res.status(400).json({ success: false });
+    return;
+  }
+
   const checkRepeated = await User.findOne({ sparcsId: newId });
 
-  if (checkExisted === null || !checkRepeated === null) {
-    res.status(400);
+  if (checkRepeated !== null) {
+    res.status(200);
     res.json({ success: false });
     return;
   }
