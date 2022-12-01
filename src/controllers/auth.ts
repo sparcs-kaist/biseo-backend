@@ -130,7 +130,7 @@ export const loginCallback = async (
     return;
   }
 
-  const user = await client.getUserInfo(code); //gony
+  const user = await client.getUserInfo(code);
   // `sparcs_id` field does not exist when the account is
   // a test account, and test accounts are important
   user.sparcs_id = user.sparcs_id ?? user.uid.slice(0, 10);
