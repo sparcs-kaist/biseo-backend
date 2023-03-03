@@ -133,6 +133,13 @@ export const loginCallback = async (
   const user = await client.getUserInfo(code);
   // `sparcs_id` field does not exist when the account is
   // a test account, and test accounts are important
+  if (!user.sparcs_id) {
+    res
+      .status(200)
+      .json({ token: null, refreshToken: null, user: null, isSparcs: false });
+    return;
+  }
+
   user.sparcs_id = user.sparcs_id ?? user.uid.slice(0, 10);
 
   // register user in DB
@@ -165,7 +172,7 @@ export const loginCallback = async (
 
   const userInfo = { sparcsID: user.sparcs_id };
 
-  res.status(200).json({ token, refreshToken, user: userInfo });
+  res.status(200).json({ token, refreshToken, user: userInfo, isSparcs: true });
 };
 
 export const refresh = async (req: Request, res: Response): Promise<void> => {
