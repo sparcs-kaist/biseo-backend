@@ -154,7 +154,7 @@ export const loginCallback = async (
 
     if (preCreatedUser) {
       await User.updateOne(
-        { sparcsId: user.sparcsId },
+        { sparcsId: user.sparcs_id },
         { $set: { uid: user.uid } }
       );
     } else {
