@@ -147,16 +147,23 @@ export const loginCallback = async (
     uid: user.uid,
   }).lean();
   if (userInDB === null) {
-    await User.create({
+    const preCreatedUser = await User.findOne({
       sparcsId: user.sparcs_id,
-      uid: user.uid,
-      isVotable: [false, false, false],
-    });
-  } else if (userInDB.uid === '0') {
-    await User.updateOne(
-      { sparcsId: user.sparcsId },
-      { $set: { uid: user.uid } }
-    );
+      uid: '0',
+    }).lean();
+
+    if (preCreatedUser) {
+      await User.updateOne(
+        { sparcsId: user.sparcsId },
+        { $set: { uid: user.uid } }
+      );
+    } else {
+      await User.create({
+        sparcsId: user.sparcs_id,
+        uid: user.uid,
+        isVotable: [false, false, false],
+      });
+    }
   }
 
   // 닉네임 변경 시 변경한 닉네임으로 적용
