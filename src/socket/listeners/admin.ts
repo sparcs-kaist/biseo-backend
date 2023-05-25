@@ -4,6 +4,7 @@ import { AgendaStatus } from '@/common/enums';
 import Agenda, { BaseAgenda } from '@/models/agenda';
 import Chat, { MessageEnum } from '@/models/chat';
 import Vote from '@/models/vote';
+import { ObjectId } from 'mongodb';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
@@ -329,22 +330,20 @@ export const adminListener = (
     async (payload: string, callback: AdminAgendaCallback) => {
       const agenda = await Agenda.findById(payload);
       if (agenda) {
-        const voteInfo = await Vote.find({ agendaId: agenda.id });
-        const voterNames = voteInfo.map(({ username }) => username);
-        let unvote: string[] = [];
-
-        agenda.participants.forEach(user => {
-          if (!voterNames.includes(user)) {
-            unvote = [user, ...unvote];
-          }
+        const voteInfo = await Vote.find({
+          agendaId: new ObjectId(agenda._id),
         });
+        const voterNames = voteInfo.map(({ username }) => username);
 
-        if (unvote.length === 0) return;
+        const unvoted = agenda.participants.filter(
+          user => !voterNames.includes(user)
+        );
 
         callback({ success: true });
+        if (unvoted.length === 0) return;
 
         emitParticipantsAndAdmin(
-          unvote,
+          unvoted,
           socketIds,
           adminSocketIds,
           io,
