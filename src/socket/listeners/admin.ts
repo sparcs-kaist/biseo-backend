@@ -341,43 +341,49 @@ export const adminListener = (
         callback({ success: true });
         if (unvoted.length === 0) return;
 
-        emitParticipantsAndAdmin(
-          unvoted,
-          socketIds,
-          adminSocketIds,
-          io,
-          'agenda:hurry',
-          agenda.title
-        );
+        emitParticipants(unvoted, socketIds, io, 'agenda:hurry', agenda.title);
       }
     }
   );
 };
 
-function emitParticipantsAndAdmin(
+function emitParticipantsAndAdmin<T>(
   participants: string[],
   socketIds: { [key: string]: Set<string> },
   adminSocketIds: Set<string>,
   io: Server,
   message: string,
-  payload: any
+  payload: T
 ) {
-  participants.map(participant => {
-    if (participant in socketIds) {
-      socketIds[participant].forEach(socket_id => {
-        if (!adminSocketIds.has(socket_id))
-          io.to(socket_id).emit(message, payload);
-      });
-    }
-  });
-  emitAdmin(adminSocketIds, io, message, payload);
+  emitParticipants<T>(
+    participants.filter(p => !adminSocketIds.has(p)),
+    socketIds,
+    io,
+    message,
+    payload
+  );
+  emitAdmin<T>(adminSocketIds, io, message, payload);
 }
 
-function emitAdmin(
+function emitParticipants<T>(
+  participants: string[],
+  socketIds: { [key: string]: Set<string> },
+  io: Server,
+  message: string,
+  payload: T
+) {
+  participants.forEach(participant => {
+    socketIds?.[participant]?.forEach(socketId => {
+      io.to(socketId).emit(message, payload);
+    });
+  });
+}
+
+function emitAdmin<T>(
   adminSocketIds: Set<string>,
   io: Server,
   message: string,
-  payload: any
+  payload: T
 ) {
   adminSocketIds.forEach(socket_id => {
     io.to(socket_id).emit(message, payload);
