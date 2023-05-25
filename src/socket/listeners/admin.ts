@@ -356,7 +356,7 @@ function emitParticipantsAndAdmin<T>(
   payload: T
 ) {
   emitParticipants<T>(
-    participants.filter(p => !adminSocketIds.has(p)),
+    participants.filter(p => !isAdmin(p, socketIds, adminSocketIds)),
     socketIds,
     io,
     message,
@@ -389,3 +389,11 @@ function emitAdmin<T>(
     io.to(socket_id).emit(message, payload);
   });
 }
+
+const isAdmin = (
+  participant: string,
+  socketIds: { [key: string]: Set<string> },
+  adminSocketIds: Set<string>
+) =>
+  participant in socketIds &&
+  [...socketIds[participant]].some(sid => adminSocketIds.has(sid));
