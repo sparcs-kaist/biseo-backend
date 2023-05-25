@@ -4,7 +4,6 @@ import { AgendaStatus } from '@/common/enums';
 import Agenda, { BaseAgenda } from '@/models/agenda';
 import Chat, { MessageEnum } from '@/models/chat';
 import Vote from '@/models/vote';
-import { ObjectId } from 'mongodb';
 
 type AdminCreatePayload = Pick<
   BaseAgenda,
@@ -331,7 +330,7 @@ export const adminListener = (
       const agenda = await Agenda.findById(payload);
       if (agenda) {
         const voteInfo = await Vote.find({
-          agendaId: new ObjectId(agenda._id),
+          agendaId: agenda._id,
         });
         const voterNames = voteInfo.map(({ username }) => username);
 
