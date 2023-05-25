@@ -57,6 +57,7 @@ export const chatListener = (
       username: socket.user.sparcs_id,
       date: message.date,
     });
+    socket.broadcast.emit('chat:message', socket.user.sparcs_id, msg);
     socket.emit('chat:message', socket.user.sparcs_id, msg); // 유저가 chat message 로 메시지를 socket에게 보냄 -> 전체에게 메시지 뿌려줌
   });
 
@@ -68,6 +69,7 @@ export const chatListener = (
         { $set: { 'type': MessageEnum.DELETED } } 
       )
     }
+    socket.broadcast.emit('chat:delete', message._id);
     socket.emit('chat:delete', message._id);
   });
 };
