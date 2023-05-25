@@ -66,6 +66,7 @@ export const voteListener = (io: Server, socket: Socket): void => {
 
       io.emit('agenda:voted', {
         agendaId,
+        choice,
         username,
       });
 
