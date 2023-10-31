@@ -31,12 +31,6 @@ export const getChats = async (req: Request, res: Response): Promise<void> => {
     .limit(chatPerPage)
     .lean();
 
-  chats.map(
-    chat =>
-      (chat.username =
-        chat.username === sparcs_id ? (chat.username = '') : chat.username)
-  );
-
   // 최신 메세지가 배열의 머리에 있어야 함
   res.json({ chats: chats });
 };
